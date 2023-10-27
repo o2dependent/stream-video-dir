@@ -1,9 +1,5 @@
 <script lang="ts">
 	export let filepath: string;
-	console.log({
-		filepath,
-		backpath: filepath.split("/").slice(0, -1).join("/"),
-	});
 </script>
 
 <div>

@@ -6,10 +6,8 @@ import BackButton from '../../components/BackButton.svelte';
 
 // get filepath param
 const { filepath } = Astro.params;
-console.log(Astro.url)
 const res = await fetch(`${Astro.url.origin}/directory${filepath ? '/' + filepath : ''}`);
 const json = await res.json();
-console.log(json);
 ---
 
 <Layout title="Welcome to Astro.">

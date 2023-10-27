@@ -10,12 +10,10 @@ export const GET: APIRoute = async ({
 	params,
 }) => {
 	const filepath = params?.filepath ?? "";
-	console.log({ filepath });
 	// stream video
 	const videoPath = `${BASE_VOLUME_PATH}/${filepath}.mp4`;
 	const fileSize = fs.statSync(`${videoPath}`).size;
 	const range = request.headers.get("range") || "bytes=0-";
-	console.log({ range });
 	const positions = RangeParser(fileSize, range, { combine: true }) as any;
 	const start = positions[0].start;
 	const end = positions[0].end;

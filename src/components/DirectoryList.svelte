@@ -1,7 +1,6 @@
 <script lang="ts">
 	export let directory: Array<string> = [];
 	export let filepath = "";
-	console.log(filepath.split("/").length);
 </script>
 
 <div class="directory__list__container">
