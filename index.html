@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0">
+	<title>Video Streaming Example</title>
+</head>
+
+<body>
+	<video width="640" height="360" controls>
+		<source src="/video" type="video/mp4">
+		Your browser does not support the video tag.
+	</video>
+	<h1>video</h1>
+	<script>
+		(async () => {
+			const res = await fetch('/videos', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+			});
+			const json = await res.json();
+			Object.keys(json).forEach(key => {
+				const el = document.createElement('div');
+				el.innerHTML = `<p>${key}: ${json[key]}</p>`;
+				document.body.appendChild(el);
+			});
+		})()
+	</script>
+</body>
+
+</html>
