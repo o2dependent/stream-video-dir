@@ -10,7 +10,9 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/svelte": "^4.0.3",
     "astro": "^3.4.0",
-    "range-parser": "^1.2.1"
+    "range-parser": "^1.2.1",
+    "svelte": "^4.0.0"
   }
 }
