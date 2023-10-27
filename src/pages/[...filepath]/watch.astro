@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Card from '../../components/Card.astro';
+import BackButton from '../../components/BackButton.svelte';
 
 // get filepath param
 const { filepath } = Astro.params;
@@ -8,6 +9,7 @@ const { filepath } = Astro.params;
 
 <Layout title="Welcome to Astro.">
 	<main>
+		<BackButton filepath={filepath?.replace('/watch', '') ?? ''} />
 		<video width="640" height="360" controls>
 			<source src={`/video/${filepath}`} type="video/mp4">
 			Your browser does not support the video tag.

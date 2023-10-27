@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Card from '../../components/Card.astro';
 import DirectoryList from '../../components/DirectoryList.svelte';
+import BackButton from '../../components/BackButton.svelte';
 
 // get filepath param
 const { filepath } = Astro.params;
@@ -13,6 +14,7 @@ console.log(json);
 
 <Layout title="Welcome to Astro.">
 	<main>
+		<BackButton filepath={filepath ?? ''} />
 		<DirectoryList {filepath} directory={json} />
 		<!-- <video width="640" height="360" controls>
 			<source src="/test/Season 8 Dressrosa/Episode 112 Colosseum of Scoundrels" type="video/mp4">

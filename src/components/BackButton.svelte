@@ -1,13 +1,19 @@
 <script lang="ts">
 	export let filepath: string;
+	console.log({
+		filepath,
+		backpath: filepath.split("/").slice(0, -1).join("/"),
+	});
 </script>
 
 <div>
 	{#if filepath !== ""}
 		<a
-			href={filepath.split("/").length === 1
-				? "/"
-				: filepath.split("/").slice(0, -1).join("/")}>Back</a
+			href={`/${
+				filepath.split("/").length === 1
+					? ""
+					: filepath.split("/").slice(0, -1).join("/")
+			}`}>Back</a
 		>
 	{/if}
 </div>

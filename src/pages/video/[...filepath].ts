@@ -9,7 +9,7 @@ export const GET: APIRoute = async ({
 	ResponseWithEncoding,
 	params,
 }) => {
-	const filepath = params.filepath;
+	const filepath = params?.filepath ?? "";
 	console.log({ filepath });
 	// stream video
 	const videoPath = `${BASE_VOLUME_PATH}/${filepath}.mp4`;
