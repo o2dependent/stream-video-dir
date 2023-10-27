@@ -15,6 +15,7 @@ export const GET: APIRoute = async ({
 	const videoPath = `${BASE_VOLUME_PATH}/${filepath}.mp4`;
 	const fileSize = fs.statSync(`${videoPath}`).size;
 	const range = request.headers.get("range") || "bytes=0-";
+	console.log({ range });
 	const positions = RangeParser(fileSize, range, { combine: true }) as any;
 	const start = positions[0].start;
 	const end = positions[0].end;
@@ -28,5 +29,5 @@ export const GET: APIRoute = async ({
 	};
 
 	const body = fs.createReadStream(videoPath, { start, end });
-	return new Response(body as any, { status: 206, headers });
+	return new Response(body as any, { status: 206, headers } as any);
 };
