@@ -23,6 +23,9 @@ try {
 		<BackButton filepath={filepath?.replace('/watch', '') ?? ''} />
 		<h1>{filepath?.split('/')?.at(-1)}</h1>
 		<VideoPlayer client:only="svelte" filepath={filepath ?? ''} {startTime} {hostname} />
+		<script>
+			console.log('hello')
+		</script>
 	</main>
 </Layout>
 

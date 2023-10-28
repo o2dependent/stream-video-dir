@@ -1,10 +1,13 @@
 ---
 import BackButton from '../components/BackButton.svelte';
+import Nav from '../components/Nav.svelte';
 interface Props {
 	title: string;
 }
 
 const { title } = Astro.props;
+const hostname = Astro.url.hostname;
+const pathname = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -18,7 +21,10 @@ const { title } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body>
-		<slot />
+		<div class="flex flex-col gap-2">
+			<Nav client:only="svelte" {hostname} {pathname} redirect={Astro.redirect} />
+			<slot />
+		</div>
 	</body>
 </html>
 <style is:global>
