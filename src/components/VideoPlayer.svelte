@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let filepath: string;
 	export let startTime: number | undefined;
+	export let hostname: string;
 </script>
 
 <video
@@ -9,6 +10,9 @@
 	height="360"
 	controls
 >
-	<source src={`/video/${filepath}#t=${startTime}`} type="video/mp4" />
+	<source
+		src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
+		type="video/mp4"
+	/>
 	Your browser does not support the video tag.
 </video>

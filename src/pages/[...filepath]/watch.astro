@@ -7,12 +7,13 @@ import VideoPlayer from '../../components/VideoPlayer.svelte';
 // get filepath param
 const { filepath } = Astro.params;
 const startTime = 0
+const hostname = Astro.url.hostname
 ---
 
 <Layout title="Welcome to Astro.">
 	<main>
 		<BackButton filepath={filepath?.replace('/watch', '') ?? ''} />
-		<VideoPlayer client:only="svelte" filepath={filepath ?? ''} {startTime} />
+		<VideoPlayer client:only="svelte" filepath={filepath ?? ''} {startTime} {hostname} />
 	</main>
 </Layout>
 
