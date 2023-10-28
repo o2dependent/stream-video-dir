@@ -6,8 +6,16 @@ import VideoPlayer from '../../components/VideoPlayer.svelte';
 
 // get filepath param
 const { filepath } = Astro.params;
-const startTime = 0
 const hostname = Astro.url.hostname
+let startTime = 0
+try {
+	const res = await fetch(`${Astro.url.origin}/video/data/${filepath}?d=true`)
+	const data = await res.json()
+	console.log({data})
+	startTime = data?.time ?? 0
+} catch (error) {
+	console.error(error)
+}
 ---
 
 <Layout title="Welcome to Astro.">
