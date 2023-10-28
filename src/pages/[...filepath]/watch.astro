@@ -21,6 +21,7 @@ try {
 <Layout title="Welcome to Astro.">
 	<main>
 		<BackButton filepath={filepath?.replace('/watch', '') ?? ''} />
+		<h1>{filepath?.split('/')?.at(-1)}</h1>
 		<VideoPlayer client:only="svelte" filepath={filepath ?? ''} {startTime} {hostname} />
 	</main>
 </Layout>
