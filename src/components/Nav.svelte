@@ -13,16 +13,16 @@
 
 	let devices: Record<string, any> = {};
 	if (typeof window !== "undefined") {
-		socket = io(`${hostname}:5432`);
+		socket = io(`${hostname}:5432`, {
+			withCredentials: true,
+		});
 		socket.connect();
 		socket.emit("join", deviceName);
 		socket.on("joined", (data) => {
-			console.log({ data });
 			devices = data.devices;
 		});
 		socket.on("passToDevice", (pathname) => {
 			// navigate to pathname
-			console.log({ pathname });
 			window.location.pathname = pathname;
 		});
 	}

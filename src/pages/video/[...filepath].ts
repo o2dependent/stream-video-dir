@@ -10,7 +10,6 @@ export const GET: APIRoute = async ({
 	params,
 }) => {
 	const query = new URL(request.url).searchParams;
-	console.log({ query, url: request.url });
 	const filepath = params?.filepath ?? "";
 	// stream video
 	const videoPath = `${BASE_VOLUME_PATH}/${filepath}.mp4`;

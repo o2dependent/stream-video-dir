@@ -22,10 +22,15 @@ const pathname = Astro.url.pathname;
 	</head>
 	<body>
 		<div class="flex flex-col gap-2">
-			<Nav client:only="svelte" {hostname} {pathname} redirect={Astro.redirect} />
+			<Nav client:only="svelte" {hostname} {pathname} />
 			<slot />
 		</div>
 	</body>
+	<script is:inline>
+		(async () => {
+			await fetch(`/auth/check`)
+		})()
+	</script>
 </html>
 <style is:global>
 	:root {

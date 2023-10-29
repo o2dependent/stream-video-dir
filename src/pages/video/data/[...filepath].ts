@@ -4,7 +4,6 @@ import fs from "fs";
 export const BASE_VOLUME_PATH = "/Volumes/Extreme SSD/One Pace";
 
 export const GET: APIRoute = async ({ request, params }) => {
-	console.log("SOMETHING HERE");
 	let filepath = params?.filepath ?? "";
 	const filepathArr = filepath.split("/");
 	const videoName = filepathArr.pop();

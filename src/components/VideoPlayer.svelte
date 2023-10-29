@@ -4,8 +4,9 @@
 	export let startTime: number | undefined;
 	export let hostname: string;
 
-	$: socket = io(`${hostname}:5432`);
-	console.log("hell");
+	$: socket = io(`${hostname}:5432`, {
+		withCredentials: true,
+	});
 	const timeupdate = (e: Event) => {
 		socket.emit("timeupdate", {
 			filepath,
@@ -14,7 +15,7 @@
 	};
 </script>
 
-<video on:timeupdate={timeupdate} width="640" height="360" controls>
+<video on:timeupdate={timeupdate} controls>
 	<source
 		src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
 		type="video/mp4"

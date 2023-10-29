@@ -11,7 +11,6 @@ let startTime = 0
 try {
 	const res = await fetch(`${Astro.url.origin}/video/data/${filepath}?d=true`)
 	const data = await res.json()
-	console.log({data})
 	startTime = data?.time ?? 0
 } catch (error) {
 	console.error(error)
@@ -23,9 +22,6 @@ try {
 		<BackButton filepath={filepath?.replace('/watch', '') ?? ''} />
 		<h1>{filepath?.split('/')?.at(-1)}</h1>
 		<VideoPlayer client:only="svelte" filepath={filepath ?? ''} {startTime} {hostname} />
-		<script>
-			console.log('hello')
-		</script>
 	</main>
 </Layout>
 
