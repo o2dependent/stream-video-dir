@@ -9,6 +9,9 @@ export class User {
 	@Column({ unique: true, type: "text" })
 	username!: string;
 
+	@Column({ type: "text" })
+	password!: string;
+
 	@OneToMany(() => Device, (device) => device.user)
 	devices!: Device[];
 }
