@@ -1,10 +1,8 @@
 import type { APIRoute } from "astro";
 import cookie from "cookie";
-import { db } from "../../services/db";
 import { generateDeviceCookies } from "../../lib/device/generateDeviceCookies";
 
 export const GET: APIRoute = async ({ request }) => {
-	console.log({ isInitialized: db.isInitialized });
 	// check if device_id is in cookies
 	const cookies = request.headers.get("cookie");
 	const hostname = request.headers.get("host")?.replace(":4321", "") ?? "";

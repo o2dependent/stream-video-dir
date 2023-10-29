@@ -8,11 +8,6 @@ import node from "@astrojs/node";
 export default defineConfig({
 	output: "server",
 	integrations: [svelte(), tailwind()],
-	vite: {
-		ssr: {
-			external: ['mock-aws-s3', 'aws-sdk', 'nock'],
-		}
-	},
 	adapter: node({
 		mode: "standalone",
 	}),
