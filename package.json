@@ -1,21 +1,21 @@
 {
-	"name": "turbo-base",
-	"private": true,
-	"version": "0.0.0",
-	"type": "module",
-	"workspaces": [
-		"apps/*"
-	],
-	"scripts": {
-		"build": "turbo run build",
-		"dev": "turbo run dev",
-		"lint": "turbo run lint",
-		"format": "prettier --write ."
-	},
-	"devDependencies": {
-		"tslib": "^2.6.0",
-		"turbo": "^1.10.16",
-		"typescript": "^5.0.2",
-		"vite": "^4.4.5"
-	}
+  "name": "turbo-base",
+  "version": "0.0.0",
+  "devDependencies": {
+    "tslib": "^2.6.0",
+    "turbo": "^1.10.16",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  },
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write ."
+  },
+  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ]
 }
