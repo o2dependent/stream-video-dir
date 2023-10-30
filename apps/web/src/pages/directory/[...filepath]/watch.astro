@@ -1,9 +1,6 @@
 ---
 import Layout from "$layouts/Layout.astro";
 import BackButton from "$components/BackButton.svelte";
-import VideoPlayer from "$components/VideoPlayer.svelte";
-import fs from "fs";
-import { BASE_VOLUME_PATH } from "$lib/constants";
 
 // get filepath param
 const { filepath } = Astro.params;
@@ -11,37 +8,64 @@ const hostname = Astro.url.hostname;
 let startTime = 0;
 try {
 	const pb = Astro.locals.pb;
-	let timestamp = await pb
+	let watchedTimestamp = await pb
 		.collection("watched_timestamps")
 		.getFirstListItem(
-			pb.filter("filepath = {:filepath} && profile = {:profile}", {
+			pb.filter(`filepath = {:filepath} && profile = {:profile_id}`, {
 				filepath,
-				profile: Astro.locals?.profile?.id,
+				profile_id: Astro.locals?.profile?.id,
 			}),
 		);
-	if (!timestamp) {
-		timestamp = await pb.collection("watched_timestamps").create({
+	if (!watchedTimestamp) {
+		watchedTimestamp = await pb.collection("watched_timestamps").create({
 			filepath,
 			profile: Astro.locals?.profile?.id,
 			time: 0,
 		});
 	}
-	startTime = timestamp?.time ?? 0;
+	startTime = watchedTimestamp?.timestamp ?? 0;
 } catch (error) {
 	console.error(error);
 }
+console.log({ startTime });
 ---
 
 <Layout title="Welcome to Astro.">
 	<main>
 		<BackButton filepath={filepath?.replace("/watch", "") ?? ""} />
 		<h1>{filepath?.split("/")?.at(-1)}</h1>
-		<VideoPlayer
-			client:only="svelte"
-			filepath={filepath ?? ""}
-			{startTime}
-			{hostname}
-		/>
+		<eo-video-player data-hostname={hostname} data-filepath={filepath}>
+			<video controls>
+				<source
+					src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
+					type="video/mp4"
+				/>
+				 Your browser does not support the video tag.
+			</video>
+		</eo-video-player>
+		<script>
+			import { io } from "socket.io-client";
+			console.log("HELLO");
+			class EOVideoPlayer extends HTMLElement {
+				constructor() {
+					super();
+					const hostname = this.dataset.hostname;
+					const filepath = this.dataset.filepath;
+					const socket = io(`${hostname}:5432`, {
+						withCredentials: true,
+					});
+					const timeupdate = (e: Event) => {
+						socket.emit("timeupdate", {
+							filepath,
+							time: (e.currentTarget as HTMLVideoElement).currentTime,
+						});
+					};
+					const video = this.querySelector("video");
+					video?.addEventListener("timeupdate", timeupdate);
+				}
+			}
+			customElements.define("eo-video-player", EOVideoPlayer);
+		</script>
 	</main>
 </Layout>
 

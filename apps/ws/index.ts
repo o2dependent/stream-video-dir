@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import os from "os";
 import fs from "fs";
 import cookie from "cookie";
-import PocketBase from "pocketbase";
+import PocketBase, { RecordModel } from "pocketbase";
 // hostname ip
 const hostname = os?.networkInterfaces?.()?.en1?.[1]?.address ?? "";
 export const BASE_VOLUME_PATH = "/Volumes/Extreme SSD/One Pace";
@@ -24,32 +24,38 @@ io.on("connection", (socket) => {
 	const cookies = socket.request.headers.cookie;
 	const { device_id, profile_id } = cookie.parse(cookies ?? "");
 	console.log({ device_id, profile_id });
-	!!profile_id &&
-		socket.on("timeupdate", async (data) => {
-			let { filepath, time } = data;
-			// get file or create a new one
-			let timestamp = await pb
-				.collection("watched_timestamps")
-				.getFirstListItem(
-					pb.filter(`(filepath = {:filepath}) && (profile = {:profile_id})`, {
-						filepath,
-						profile_id,
-					}),
-				);
-			if (timestamp) {
+	socket.on("timeupdate", async (data) => {
+		if (!profile_id) return socket.emit("timeupdated", { success: false });
+		let { filepath, time } = data;
+		console.log({ filepath, time });
+		let timestamp: RecordModel | undefined;
+		// get file or create a new one
+		try {
+			timestamp = await pb.collection("watched_timestamps").getFirstListItem(
+				pb.filter(`filepath = {:filepath} && profile = {:profile_id}`, {
+					filepath,
+					profile_id,
+				}),
+			);
+			if (!timestamp) throw new Error("Timestamp not found");
+			try {
 				timestamp = await pb
 					.collection("watched_timestamps")
-					.update(timestamp.id, { time });
-			} else {
-				timestamp = await pb.collection("watched_timestamps").create({
-					filepath,
-					profile: { id: profile_id },
-					time,
-				});
+					.update(timestamp.id, { timestamp: time });
+			} catch (error) {
+				console.error("Failed to update timestamp", error);
+				return;
 			}
-			console.log({ timestamp });
-			socket.emit("timeupdated", { success: true });
-		});
+		} catch (error) {
+			timestamp = await pb.collection("watched_timestamps").create({
+				filepath,
+				profile: profile_id,
+				timestamp: time,
+			});
+		}
+		console.log({ timestamp });
+		socket.emit("timeupdated", { success: true });
+	});
 
 	socket.on("join", (deviceName) => {
 		console.log("join");
