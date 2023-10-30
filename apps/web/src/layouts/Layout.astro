@@ -7,7 +7,7 @@ interface Props {
 const { title } = Astro.props;
 const hostname = Astro.url.hostname;
 const pathname = Astro.url.pathname;
-const profile = Astro.cookies.get("profile")?.value;
+const profile = Astro.locals.profile?.name;
 ---
 
 <!doctype html>

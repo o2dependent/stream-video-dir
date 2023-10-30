@@ -23,7 +23,7 @@ const pbInit: MiddlewareResponseHandler = async ({ locals, request }, next) => {
 	// send back the default 'pb_auth' cookie to the client with the latest store state
 	response.headers.append("set-cookie", locals.pb.authStore.exportToCookie());
 
-	next();
+	return response;
 };
 
 const deviceHandler: MiddlewareResponseHandler = async (
@@ -32,49 +32,53 @@ const deviceHandler: MiddlewareResponseHandler = async (
 ) => {
 	const hostname = url.hostname;
 	const pathname = url.pathname;
-	const profile = cookies.get("profile")?.value;
-	console.log({ pathname });
-	if (!profile && !["/", ""].includes(pathname)) {
-		return redirect("/");
+	const profileId = cookies.get("profile_id")?.value;
+	let profile: App.Locals["profile"];
+	try {
+		profile = await locals?.pb?.collection("profiles")?.getOne(profileId ?? "");
+		if (!profile) throw new Error("Profile not found");
+	} catch (error) {
+		profile = undefined;
 	}
-	let deviceId = cookies.get("device_id")?.value;
-	if (!deviceId) {
-		// else create new device_id
-		deviceId = Math.random().toString(36).substr(2, 9);
-	}
-	cookies.set("device_id", deviceId, {
+	console.log({ profileId, profile });
+
+	cookies.set("profile_id", profile?.id ?? "", {
 		domain: hostname,
 		expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 10),
 		path: "/",
 		sameSite: "lax",
 	});
 
-	let device;
+	locals.profile = profile;
+
+	if (!profile && !["/", ""].includes(pathname)) {
+		return redirect("/");
+	}
+
+	let deviceId = cookies.get("device_id")?.value;
+
+	let device: App.Locals["device"];
+
 	try {
+		if (!deviceId) throw new Error("Device not found");
+
 		device = await locals?.pb
 			?.collection("devices")
 			?.getFirstListItem(
-				locals?.pb?.filter("(deviceId = {:deviceId})", { deviceId }),
+				locals?.pb?.filter("(id = {:deviceId})", { deviceId }),
 			);
-		if (!device) {
-			throw new Error("Device not found");
-		}
-	} catch (error) {
-		try {
-			const activeProfile = await locals?.pb
-				?.collection("profiles")
-				?.getOne(profile ?? "");
 
-			device = await locals?.pb?.collection("devices")?.create({
-				deviceId,
-				name: "Unnamed device",
-				activeProfile,
-			});
-		} catch (error) {
-			console.error(error);
-		}
+		if (!device) throw new Error("Device not found");
+	} catch (error) {
+		device = await locals?.pb?.collection("devices")?.create({
+			name: "Unnamed device",
+			activeProfile: locals?.profile,
+		});
 	}
-	cookies.set("device_id", device?.deviceId ?? deviceId, {
+
+	locals.device = device;
+
+	cookies.set("device_id", device?.id ?? "", {
 		domain: hostname,
 		expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 10),
 		path: "/",
@@ -84,4 +88,4 @@ const deviceHandler: MiddlewareResponseHandler = async (
 	return next();
 };
 
-export const onRequest = sequence(deviceHandler, pbInit);
+export const onRequest = sequence(pbInit, deviceHandler);

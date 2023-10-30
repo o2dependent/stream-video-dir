@@ -10,23 +10,21 @@ if (Astro.request.method === "POST") {
 	// get query params
 	const params = [...Astro.url.searchParams.keys()];
 
-	if (params.includes("name")) {
-		const name = Astro.url.searchParams.get("name");
-		if (name === null) {
+	if (params.includes("id")) {
+		const id = Astro.url.searchParams.get("id");
+		if (id === null) {
 			errors.message = "Something went wrong! Try again";
 			return;
 		}
-		console.log({ name });
-		const profile = await pb
-			.collection("profiles")
-			.getFirstListItem(pb.filter("name = {:name}", { name }));
+		const profile = await pb.collection("profiles").getOne(id);
+		Astro.cookies.set("profile_id", profile.id);
 		if (!profile) {
 			errors.message = "Profile not found! Try again";
 			return Astro.redirect("/");
 		}
-		Astro.cookies.set("profile", name);
+		console.log({ profile, id });
 		return Astro.redirect("/directory");
-	} else {
+	} else if (params.includes("update") || params.includes("create")) {
 		const data = await Astro.request.formData();
 		const name = data.get("profileName");
 		if (params.includes("create")) {
@@ -35,7 +33,7 @@ if (Astro.request.method === "POST") {
 					const newProfile = await pb.collection("profiles").create({
 						name,
 					});
-					Astro.cookies.set("profile", name);
+					Astro.cookies.set("profile_id", newProfile.id);
 				} catch (error) {
 					console.error(error);
 				}
@@ -51,7 +49,7 @@ if (Astro.request.method === "POST") {
 	{
 		profiles.length > 0 ? (
 			profiles?.map((profile) => (
-				<form method="POST" action={`?name=${profile.name}`}>
+				<form method="POST" action={`?id=${profile.id}`}>
 					<button type="submit">{profile.name}</button>
 				</form>
 			))

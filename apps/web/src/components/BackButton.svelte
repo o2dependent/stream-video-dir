@@ -5,7 +5,7 @@
 <div>
 	{#if filepath !== ""}
 		<a
-			href={`/${
+			href={`/directory/${
 				filepath.split("/").length === 1
 					? ""
 					: filepath.split("/").slice(0, -1).join("/")
