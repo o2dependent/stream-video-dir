@@ -25,17 +25,29 @@ io.on("connection", (socket) => {
 	const { device_id, profile } = cookie.parse(cookies ?? "");
 	console.log({ device_id });
 	!!profile &&
-		socket.on("timeupdate", (data) => {
+		socket.on("timeupdate", async (data) => {
 			let { filepath, time } = data;
 			// get file or create a new one
-			const filepathArr = filepath.split("/");
-			const videoName = filepathArr.pop();
-			filepath = filepathArr.join("/");
-			const videoDataPath = `${BASE_VOLUME_PATH}/${filepath}/._meta_${videoName}.mp4.json`;
-			fs.writeFileSync(
-				videoDataPath,
-				JSON.stringify({ time, updatedAt: Date.now() }),
-			);
+			let timestamp = await pb
+				.collection("watched_timestamps")
+				.getFirstListItem(
+					pb.filter(`(filepath = {:filepath}) && (profile = {:profile})`, {
+						filepath,
+						profile,
+					}),
+				);
+			if (timestamp) {
+				await pb
+					.collection("watched_timestamps")
+					.update(timestamp.id, { time });
+			} else {
+				await pb.collection("watched_timestamps").create({
+					filepath,
+					profile,
+					time,
+				});
+			}
+
 			socket.emit("timeupdated", { success: true });
 		});
 

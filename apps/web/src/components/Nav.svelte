@@ -2,6 +2,7 @@
 	import { io } from "socket.io-client";
 	export let hostname: string;
 	export let pathname: string;
+	export let profile: string | undefined;
 
 	let socket: ReturnType<typeof io>;
 
@@ -49,7 +50,7 @@
 	};
 </script>
 
-<nav class="mx-auto flex max-w-md w-full justify-between">
+<nav class="mx-auto flex w-full justify-between">
 	<div>
 		<button
 			class="px-2 py-1 rounded bg-purple-500 text-white"
@@ -59,10 +60,17 @@
 			Pass to device
 		</button>
 	</div>
-	<div>
-		<a class="px-2 py-1 rounded bg-purple-500 text-white" href="/register"
-			>Register</a
-		>
+	<div class="flex gap-2">
+		{#if profile}
+			<a
+				class="px-2 block py-1 rounded bg-purple-500 text-white"
+				href="/profile">{profile}</a
+			>
+		{:else}
+			<a class="px-2 block py-1 rounded bg-purple-500 text-white" href="/"
+				>Login</a
+			>
+		{/if}
 		<button
 			class="px-2 py-1 rounded bg-purple-500 text-white"
 			type="button"

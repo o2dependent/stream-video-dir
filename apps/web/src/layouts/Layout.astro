@@ -1,5 +1,5 @@
 ---
-import Nav from '$components/Nav.svelte';
+import Nav from "$components/Nav.svelte";
 interface Props {
 	title: string;
 }
@@ -7,6 +7,7 @@ interface Props {
 const { title } = Astro.props;
 const hostname = Astro.url.hostname;
 const pathname = Astro.url.pathname;
+const profile = Astro.cookies.get("profile")?.value;
 ---
 
 <!doctype html>
@@ -19,48 +20,10 @@ const pathname = Astro.url.pathname;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body>
-		<div class="max-w-md mx-auto flex flex-col gap-2">
-			<Nav client:only="svelte" {hostname} {pathname} />
+	<body class="bg-slate-950 text-slate-50">
+		<div class="max-w-6xl w-full mx-auto flex flex-col gap-2">
+			<Nav client:only="svelte" {hostname} {pathname} {profile} />
 			<slot />
 		</div>
 	</body>
-	<script is:inline>
-		(async () => {
-			await fetch(`/auth/check`)
-		})()
-	</script>
 </html>
-<style is:global>
-	:root {
-		--accent: 136, 58, 234;
-		--accent-light: 224, 204, 250;
-		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
-	}
-	html {
-		font-family: system-ui, sans-serif;
-		background: #13151a;
-		background-size: 224px;
-	}
-	a {
-		color: rgb(var(--accent));
-		text-decoration: none;
-	}
-	code {
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
-	}
-</style>

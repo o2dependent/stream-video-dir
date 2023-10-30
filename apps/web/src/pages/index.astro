@@ -2,16 +2,80 @@
 import AddProfile from "$components/AddProfile.svelte";
 import Layout from "../layouts/Layout.astro";
 
-const errors = { username: "", password: "" };
-const pb = Astro.locals.pb
-const profiles = await pb.collection('profiles').getFullList()
----
-<Layout title="Profiles">
-	{profiles.length > 0 ? profiles?.map((profile) => {
-		<button>
-			{profile.name}
-			</button>
-	}) : <p>No profiles found</p>}
-	<AddProfile />
+const errors = { username: "", message: "" };
+const pb = Astro.locals.pb;
+const profiles = await pb.collection("profiles").getFullList();
 
+if (Astro.request.method === "POST") {
+	// get query params
+	const params = [...Astro.url.searchParams.keys()];
+
+	if (params.includes("name")) {
+		const name = Astro.url.searchParams.get("name");
+		if (name === null) {
+			errors.message = "Something went wrong! Try again";
+			return;
+		}
+		console.log({ name });
+		const profile = await pb
+			.collection("profiles")
+			.getFirstListItem(pb.filter("name = {:name}", { name }));
+		if (!profile) {
+			errors.message = "Profile not found! Try again";
+			return Astro.redirect("/");
+		}
+		Astro.cookies.set("profile", name);
+		return Astro.redirect("/directory");
+	} else {
+		const data = await Astro.request.formData();
+		const name = data.get("profileName");
+		if (params.includes("create")) {
+			if (name) {
+				try {
+					const newProfile = await pb.collection("profiles").create({
+						name,
+					});
+					Astro.cookies.set("profile", name);
+				} catch (error) {
+					console.error(error);
+				}
+			} else {
+				errors.username = "Please enter a name";
+			}
+		}
+	}
+}
+---
+
+<Layout title="Profiles">
+	{
+		profiles.length > 0 ? (
+			profiles?.map((profile) => (
+				<form method="POST" action={`?name=${profile.name}`}>
+					<button type="submit">{profile.name}</button>
+				</form>
+			))
+		) : (
+			<form
+				method="POST"
+				action="?update"
+				class="w-full p-4 rounded border border-slate-500/50 bg-slate-800 max-w-sm flex flex-col gap-2"
+			>
+				<input
+					type="text"
+					name="profileName"
+					class="text-black rounded bg-slate-200 border border-slate-400"
+				/>
+				<div>
+					<button
+						class="px-2 py-1 rounded bg-green-500 text-white"
+						type="submit"
+					>
+						Create Profile
+					</button>
+				</div>
+			</form>
+		)
+	}
+	<AddProfile />
 </Layout>
