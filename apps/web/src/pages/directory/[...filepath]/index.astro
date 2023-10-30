@@ -2,14 +2,17 @@
 import Layout from '$layouts/Layout.astro';
 import DirectoryList from '$components/DirectoryList.svelte';
 import BackButton from '$components/BackButton.svelte';
+import { BASE_VOLUME_PATH } from '$lib/constants';
+import fs from 'fs'
 
 // get filepath param
 let directory: string[] = [];
-const { filepath } = Astro.params;
+let { filepath } = Astro.params;
 try {
-	const res = await fetch(`${Astro.url.origin}/directory${filepath ? '/' + filepath : ''}`);
-	const json = await res.json();
-	directory = json;
+	let dir = fs.readdirSync(
+		`${BASE_VOLUME_PATH}${filepath ? "/" + filepath : ""}`,
+	);
+	directory = dir?.filter((file) => !file.startsWith("."));
 } catch (err) {
 	console.error(err);
 }
