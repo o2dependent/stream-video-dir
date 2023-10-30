@@ -1,32 +1,47 @@
 ---
-import Layout from '$layouts/Layout.astro';
-import BackButton from '$components/BackButton.svelte';
-import VideoPlayer from '$components/VideoPlayer.svelte';
-import fs from 'fs';
-import { BASE_VOLUME_PATH } from '$lib/constants';
+import Layout from "$layouts/Layout.astro";
+import BackButton from "$components/BackButton.svelte";
+import VideoPlayer from "$components/VideoPlayer.svelte";
+import fs from "fs";
+import { BASE_VOLUME_PATH } from "$lib/constants";
 
 // get filepath param
 const { filepath } = Astro.params;
-const hostname = Astro.url.hostname
-let startTime = 0
+const hostname = Astro.url.hostname;
+let startTime = 0;
 try {
-	const filepathArr = filepath?.split("/") ?? [] as string[];
-	const videoName = filepathArr.pop();
-	const cleanedFilepath = filepathArr.join("/");
-	const videoDataPath = `${BASE_VOLUME_PATH}/${cleanedFilepath}/._meta_${videoName}.mp4.json`;
-	const fileData = await fs.readFileSync(videoDataPath, "utf-8");
-	const data = JSON.parse(fileData);
-	startTime = data?.time ?? 0
+	const pb = Astro.locals.pb;
+	let timestamp = await pb
+		.collection("watched_timestamps")
+		.getFirstListItem(
+			pb.filter("filepath = {:filepath} && profile = {:profile}", {
+				filepath,
+				profile: Astro.locals?.profile?.id,
+			}),
+		);
+	if (!timestamp) {
+		timestamp = await pb.collection("watched_timestamps").create({
+			filepath,
+			profile: Astro.locals?.profile?.id,
+			time: 0,
+		});
+	}
+	startTime = timestamp?.time ?? 0;
 } catch (error) {
-	console.error(error)
+	console.error(error);
 }
 ---
 
 <Layout title="Welcome to Astro.">
 	<main>
-		<BackButton filepath={filepath?.replace('/watch', '') ?? ''} />
-		<h1>{filepath?.split('/')?.at(-1)}</h1>
-		<VideoPlayer client:only="svelte" filepath={filepath ?? ''} {startTime} {hostname} />
+		<BackButton filepath={filepath?.replace("/watch", "") ?? ""} />
+		<h1>{filepath?.split("/")?.at(-1)}</h1>
+		<VideoPlayer
+			client:only="svelte"
+			filepath={filepath ?? ""}
+			{startTime}
+			{hostname}
+		/>
 	</main>
 </Layout>
 
@@ -66,7 +81,10 @@ try {
 	.instructions {
 		margin-bottom: 2rem;
 		border: 1px solid rgba(var(--accent-light), 25%);
-		background: linear-gradient(rgba(var(--accent-dark), 66%), rgba(var(--accent-dark), 33%));
+		background: linear-gradient(
+			rgba(var(--accent-dark), 66%),
+			rgba(var(--accent-dark), 33%)
+		);
 		padding: 1.5rem;
 		border-radius: 8px;
 	}

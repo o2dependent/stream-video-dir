@@ -3,7 +3,10 @@ import PocketBase from "pocketbase";
 import { sequence } from "astro/middleware";
 import type { MiddlewareResponseHandler } from "astro";
 
-const pbInit: MiddlewareResponseHandler = async ({ locals, request }, next) => {
+const pbInit: MiddlewareResponseHandler = async (
+	{ locals, request, cookies },
+	next,
+) => {
 	locals.pb = new PocketBase("http://127.0.0.1:8090");
 
 	// load the store data from the request cookie string
@@ -21,7 +24,18 @@ const pbInit: MiddlewareResponseHandler = async ({ locals, request }, next) => {
 	const response = await next();
 
 	// send back the default 'pb_auth' cookie to the client with the latest store state
-	response.headers.append("set-cookie", locals.pb.authStore.exportToCookie());
+	// response.headers.append("set-cookie", locals.pb.authStore.exportToCookie());
+	// parse out the pb_auth cookie and get the value
+	const pbcookie = locals.pb.authStore
+		.exportToCookie()
+		.split(";")
+		.find((cookie) => cookie.includes("pb_auth"))
+		?.split("=")[1];
+	cookies.set("pb_auth", pbcookie ?? "", {
+		httpOnly: true,
+		secure: true,
+		sameSite: "strict",
+	});
 
 	return response;
 };
@@ -35,12 +49,12 @@ const deviceHandler: MiddlewareResponseHandler = async (
 	const profileId = cookies.get("profile_id")?.value;
 	let profile: App.Locals["profile"];
 	try {
-		profile = await locals?.pb?.collection("profiles")?.getOne(profileId ?? "");
+		if (!profileId) throw new Error("Profile not found");
+		profile = await locals?.pb?.collection("profiles")?.getOne(profileId);
 		if (!profile) throw new Error("Profile not found");
 	} catch (error) {
 		profile = undefined;
 	}
-	console.log({ profileId, profile });
 
 	cookies.set("profile_id", profile?.id ?? "", {
 		domain: hostname,

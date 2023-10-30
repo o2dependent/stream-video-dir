@@ -2,9 +2,12 @@
 import AddProfile from "$components/AddProfile.svelte";
 import Layout from "../layouts/Layout.astro";
 
-const errors = { username: "", message: "" };
+const hostname = Astro.url.hostname;
 const pb = Astro.locals.pb;
+
 const profiles = await pb.collection("profiles").getFullList();
+
+const errors = { username: "", message: "" };
 
 if (Astro.request.method === "POST") {
 	// get query params
@@ -17,12 +20,16 @@ if (Astro.request.method === "POST") {
 			return;
 		}
 		const profile = await pb.collection("profiles").getOne(id);
-		Astro.cookies.set("profile_id", profile.id);
+		Astro.cookies.set("profile_id", profile.id, {
+			domain: hostname,
+			expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 10),
+			path: "/",
+			sameSite: "lax",
+		});
 		if (!profile) {
 			errors.message = "Profile not found! Try again";
 			return Astro.redirect("/");
 		}
-		console.log({ profile, id });
 		return Astro.redirect("/directory");
 	} else if (params.includes("update") || params.includes("create")) {
 		const data = await Astro.request.formData();
@@ -33,7 +40,12 @@ if (Astro.request.method === "POST") {
 					const newProfile = await pb.collection("profiles").create({
 						name,
 					});
-					Astro.cookies.set("profile_id", newProfile.id);
+					Astro.cookies.set("profile_id", newProfile.id, {
+						domain: hostname,
+						expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 10),
+						path: "/",
+						sameSite: "lax",
+					});
 				} catch (error) {
 					console.error(error);
 				}

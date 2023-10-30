@@ -22,32 +22,32 @@ io.on("connection", (socket) => {
 	console.log("------------ connection ------------");
 
 	const cookies = socket.request.headers.cookie;
-	const { device_id, profile } = cookie.parse(cookies ?? "");
-	console.log({ device_id });
-	!!profile &&
+	const { device_id, profile_id } = cookie.parse(cookies ?? "");
+	console.log({ device_id, profile_id });
+	!!profile_id &&
 		socket.on("timeupdate", async (data) => {
 			let { filepath, time } = data;
 			// get file or create a new one
 			let timestamp = await pb
 				.collection("watched_timestamps")
 				.getFirstListItem(
-					pb.filter(`(filepath = {:filepath}) && (profile = {:profile})`, {
+					pb.filter(`(filepath = {:filepath}) && (profile = {:profile_id})`, {
 						filepath,
-						profile,
+						profile_id,
 					}),
 				);
 			if (timestamp) {
-				await pb
+				timestamp = await pb
 					.collection("watched_timestamps")
 					.update(timestamp.id, { time });
 			} else {
-				await pb.collection("watched_timestamps").create({
+				timestamp = await pb.collection("watched_timestamps").create({
 					filepath,
-					profile,
+					profile: { id: profile_id },
 					time,
 				});
 			}
-
+			console.log({ timestamp });
 			socket.emit("timeupdated", { success: true });
 		});
 
