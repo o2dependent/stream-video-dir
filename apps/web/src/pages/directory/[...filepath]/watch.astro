@@ -6,43 +6,210 @@ import BackButton from "$components/BackButton.svelte";
 const { filepath } = Astro.params;
 const hostname = Astro.url.hostname;
 let startTime = 0;
+let watchedTimestamp;
+const pb = Astro.locals.pb;
 try {
-	const pb = Astro.locals.pb;
-	let watchedTimestamp = await pb
-		.collection("watched_timestamps")
-		.getFirstListItem(
-			pb.filter(`filepath = {:filepath} && profile = {:profile_id}`, {
-				filepath,
-				profile_id: Astro.locals?.profile?.id,
-			}),
-		);
-	if (!watchedTimestamp) {
-		watchedTimestamp = await pb.collection("watched_timestamps").create({
+	watchedTimestamp = await pb.collection("watched_timestamps").getFirstListItem(
+		pb.filter(`filepath = {:filepath} && profile = {:profile_id}`, {
 			filepath,
-			profile: Astro.locals?.profile?.id,
-			time: 0,
-		});
-	}
-	startTime = watchedTimestamp?.timestamp ?? 0;
+			profile_id: Astro.locals?.profile?.id,
+		}),
+	);
 } catch (error) {
+	watchedTimestamp = await pb.collection("watched_timestamps").create({
+		filepath,
+		profile: Astro.locals?.profile?.id,
+		time: 0,
+	});
 	console.error(error);
 }
+startTime = watchedTimestamp?.timestamp ?? 0;
 console.log({ startTime });
+
+//TODO: MOVE THE BELOW CODE INTO "DirectoryList.astro" after moving the svelte file to astro
+import { BASE_VOLUME_PATH } from "$lib/constants";
+import fs from "fs";
+const sortByPath = (a: any, b: any) => {
+	const aPath = a.path.split(" ");
+	const bPath = b.path.split(" ");
+	for (let i = 0; i < aPath.length; i++) {
+		const bothAreNumbers =
+			!isNaN(parseInt(aPath[i])) && !isNaN(parseInt(bPath[i]));
+
+		if (bothAreNumbers && parseInt(aPath[i]) > parseInt(bPath[i])) return 1;
+		if (bothAreNumbers && parseInt(aPath[i]) < parseInt(bPath[i])) return -1;
+	}
+	return 0;
+};
+// get filepath param
+let directory: {
+	id: string;
+	path: string;
+	timestamp?: number;
+	updated?: string;
+	duration?: number;
+}[] = [];
+let latestVideoId: string | undefined;
+let latestVideoIdx: number | undefined;
+
+try {
+	// remove everything after the last slash
+	let filepath =
+		Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? "";
+	let dir = fs.readdirSync(
+		`${BASE_VOLUME_PATH}${filepath ? "/" + filepath.split("/") : ""}`,
+	);
+	let newDirectory = dir?.filter((file) => !file.startsWith("."));
+	const dirFilter = newDirectory
+		.map((filename) =>
+			pb.filter("(filepath = {:path} && profile = {:profileId} )", {
+				path: `${filepath}/${filename?.replace(".mp4", "")}`,
+				profileId: Astro.locals.profile?.id,
+			}),
+		)
+		.join(" || ");
+	const watchedTimestamps = await pb
+		.collection("watched_timestamps")
+		.getFullList({
+			filter: `${dirFilter}`,
+			sort: "-updated",
+		});
+	// add watched timestamps to directory
+	directory = newDirectory
+		.map((filename) => {
+			const watchedTimestamp = watchedTimestamps.find((wt, idx) => {
+				const isSamePath =
+					wt.filepath === `${filepath}/${filename?.replace(".mp4", "")}`;
+				return isSamePath;
+			});
+			return {
+				id: watchedTimestamp?.id ?? "NO ID FOUND",
+				path: filename,
+				timestamp: watchedTimestamp?.timestamp ?? 0,
+				updated: watchedTimestamp?.updated,
+				duration: watchedTimestamp?.duration || 1,
+			};
+		})
+		.sort(sortByPath);
+	latestVideoIdx = directory?.findIndex(
+		(wt) => wt.path === Astro.params.filepath?.split("/").at(-1) + ".mp4",
+	);
+	console.log({
+		filepath: Astro.params.filepat?.split("/").at(-1) + ".mp4",
+		wtFilepath: directory?.map((wt) => wt.path),
+		latestVideoIdx,
+	});
+} catch (err) {
+	console.error(err);
+}
 ---
 
 <Layout title="Welcome to Astro.">
-	<main>
-		<BackButton filepath={filepath?.replace("/watch", "") ?? ""} />
-		<h1>{filepath?.split("/")?.at(-1)}</h1>
-		<eo-video-player data-hostname={hostname} data-filepath={filepath}>
-			<video controls>
-				<source
-					src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
-					type="video/mp4"
-				/>
-				 Your browser does not support the video tag.
-			</video>
+	<main class="flex flex-col gap-2 w-full pb-8">
+		<eo-video-player
+			data-hostname={hostname}
+			data-filepath={filepath}
+			data-latest-video-idx={latestVideoIdx}
+		>
+			<div class="w-full h-[80vh] relative">
+				<div
+					class="absolute top-0 left-0 h-full w-full flex flex-col items-center justify-center bg-black ring-gray-900 -z-10"
+				>
+				</div>
+				<video class="h-full object-contain mx-auto" controls>
+					<source
+						src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
+						type="video/mp4"
+					/>
+					 Your browser does not support the video tag.
+				</video>
+			</div>
 		</eo-video-player>
+		<div class="">
+			<div class="max-w-screen-3xl mx-auto px-4 grid grid-cols-[1fr_auto]">
+				<h1 class="text-5xl">{filepath?.split("/")?.at(-1)}</h1>
+				<div
+					class="grid grid-cols-1 max-w-sm pt-10 relative rounded overflow-hidden"
+				>
+					<div
+						class="px-4 text-xl font-bold h-10 absolute top-0 left-0 bg-slate-900 w-full flex items-center"
+					>
+						<a
+							href={`/directory/${
+								Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
+							}`}
+						>
+							<h2>
+								{
+									Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ??
+										""
+								}
+							</h2>
+						</a>
+					</div>
+					<eo-directory-list data-latest-video-idx={latestVideoIdx}>
+						<div id="directory-list" class="max-h-64 overflow-y-scroll py-1">
+							{
+								directory?.map(
+									({ path, timestamp, updated, duration, id }, idx) => {
+										//TODO: add directory in list later
+										if (!path.includes(".mp4")) return;
+										const itemPercent =
+											((timestamp ?? 0) / (duration ?? 1)) * 100;
+										const isCurrentVideo = idx === latestVideoIdx;
+										return (
+											<a
+												id={`directory-list-item-${idx}`}
+												href={`/directory/${
+													Astro.params.filepath
+														?.split("/")
+														?.slice(0, -1)
+														?.join("/") ?? ""
+												}/${path.replace(".mp4", "")}/watch`}
+											>
+												<div
+													class={`flex flex-col ring-1  ${
+														isCurrentVideo
+															? "ring-orange-700/50 hover:ring-orange-700 bg-orange-900/25 hover:bg-orange-700/25"
+															: "ring-slate-700/0 hover:ring-purple-700 bg-purple-900/10 hover:bg-purple-700/10"
+													} px-4 py-2 transition-shadow duration-150 ease-in-out`}
+												>
+													<p>{path}</p>
+													<div class="grid grid-cols-2 w-full">
+														<div
+															class:border-green-500={itemPercent >= 99.9}
+															class={`w-full overflow-hidden rounded-full h-2 border ${
+																itemPercent >= 99.9
+																	? "border-green-500"
+																	: isCurrentVideo
+																	? "border-orange-500"
+																	: "border-purple-500"
+															}`}
+														>
+															<div
+																class={`h-full ${
+																	itemPercent >= 99.9
+																		? "bg-green-500"
+																		: isCurrentVideo
+																		? "bg-orange-500"
+																		: "bg-purple-500"
+																}`}
+																style={`width: ${itemPercent}%`}
+															/>
+														</div>
+													</div>
+												</div>
+											</a>
+										);
+									},
+								)
+							}
+						</div>
+					</eo-directory-list>
+				</div>
+			</div>
+		</div>
+
 		<script>
 			import { io } from "socket.io-client";
 			console.log("HELLO");
@@ -54,6 +221,7 @@ console.log({ startTime });
 					const socket = io(`${hostname}:5432`, {
 						withCredentials: true,
 					});
+
 					const timeupdate = (e: Event) => {
 						socket.emit("timeupdate", {
 							filepath,
@@ -66,68 +234,23 @@ console.log({ startTime });
 				}
 			}
 			customElements.define("eo-video-player", EOVideoPlayer);
+			class EODirectoryList extends HTMLElement {
+				constructor() {
+					super();
+					const currentVideo: HTMLAnchorElement | null = this.querySelector(
+						`#directory-list #directory-list-item-${this.dataset.latestVideoIdx}`,
+					);
+					const container = this.querySelector("#directory-list");
+					console.log({
+						st: currentVideo?.scrollTop,
+						currentVideo,
+					});
+					container?.scrollTo({
+						top: (currentVideo?.offsetTop ?? 0) - 42,
+					});
+				}
+			}
+			customElements.define("eo-directory-list", EODirectoryList);
 		</script>
 	</main>
 </Layout>
-
-<style>
-	main {
-		margin: auto;
-		padding: 1rem;
-		width: 800px;
-		max-width: calc(100% - 2rem);
-		color: white;
-		font-size: 20px;
-		line-height: 1.6;
-	}
-	.astro-a {
-		position: absolute;
-		top: -32px;
-		left: 50%;
-		transform: translatex(-50%);
-		width: 220px;
-		height: auto;
-		z-index: -1;
-	}
-	h1 {
-		font-size: 4rem;
-		font-weight: 700;
-		line-height: 1;
-		text-align: center;
-		margin-bottom: 1em;
-	}
-	.text-gradient {
-		background-image: var(--accent-gradient);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-size: 400%;
-		background-position: 0%;
-	}
-	.instructions {
-		margin-bottom: 2rem;
-		border: 1px solid rgba(var(--accent-light), 25%);
-		background: linear-gradient(
-			rgba(var(--accent-dark), 66%),
-			rgba(var(--accent-dark), 33%)
-		);
-		padding: 1.5rem;
-		border-radius: 8px;
-	}
-	.instructions code {
-		font-size: 0.8em;
-		font-weight: bold;
-		background: rgba(var(--accent-light), 12%);
-		color: rgb(var(--accent-light));
-		border-radius: 4px;
-		padding: 0.3em 0.4em;
-	}
-	.instructions strong {
-		color: rgb(var(--accent-light));
-	}
-	.link-card-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
-		gap: 2rem;
-		padding: 0;
-	}
-</style>
