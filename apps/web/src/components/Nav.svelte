@@ -50,36 +50,44 @@
 	};
 </script>
 
-<nav class="mx-auto flex w-full justify-between">
-	<div>
-		<button
-			class="px-2 py-1 rounded bg-purple-500 text-white"
-			type="button"
-			on:click={openPassToDeviceModal}
-		>
-			Pass to device
-		</button>
+<div class="py-2 bg-purple-700/50">
+	<div class="max-w-screen-3xl w-full mx-auto">
+		<nav class="mx-auto flex w-full justify-between">
+			<div>
+				<a
+					class="px-2 block py-1 rounded bg-purple-500 text-white"
+					href="/directory">Home Directory</a
+				>
+			</div>
+			<div class="flex gap-2">
+				<button
+					class="px-2 py-1 rounded bg-purple-500 text-white"
+					type="button"
+					on:click={openPassToDeviceModal}
+				>
+					Pass to device
+				</button>
+				{#if profile}
+					<a
+						class="px-2 block py-1 rounded bg-purple-500 text-white"
+						href="/profile">{profile}</a
+					>
+				{:else}
+					<a class="px-2 block py-1 rounded bg-purple-500 text-white" href="/"
+						>Login</a
+					>
+				{/if}
+				<button
+					class="px-2 py-1 rounded bg-purple-500 text-white"
+					type="button"
+					on:click={openModal}
+				>
+					Edit device name
+				</button>
+			</div>
+		</nav>
 	</div>
-	<div class="flex gap-2">
-		{#if profile}
-			<a
-				class="px-2 block py-1 rounded bg-purple-500 text-white"
-				href="/profile">{profile}</a
-			>
-		{:else}
-			<a class="px-2 block py-1 rounded bg-purple-500 text-white" href="/"
-				>Login</a
-			>
-		{/if}
-		<button
-			class="px-2 py-1 rounded bg-purple-500 text-white"
-			type="button"
-			on:click={openModal}
-		>
-			Edit device name
-		</button>
-	</div>
-</nav>
+</div>
 
 <div
 	class:hidden={!isModalOpen}
