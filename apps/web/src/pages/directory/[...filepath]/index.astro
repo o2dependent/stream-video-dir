@@ -5,15 +5,32 @@ import BackButton from "$components/BackButton.svelte";
 import { BASE_VOLUME_PATH } from "$lib/constants";
 import fs from "fs";
 
+const sortByPath = (a: any, b: any) => {
+	const aPath = a.path.split(" ");
+	const bPath = b.path.split(" ");
+	for (let i = 0; i < aPath.length; i++) {
+		const bothAreNumbers =
+			!isNaN(parseInt(aPath[i])) && !isNaN(parseInt(bPath[i]));
+
+		if (bothAreNumbers && parseInt(aPath[i]) > parseInt(bPath[i])) return 1;
+		if (bothAreNumbers && parseInt(aPath[i]) < parseInt(bPath[i])) return -1;
+	}
+	return 0;
+};
+
 // get filepath param
 let directory: {
+	id: string;
 	path: string;
 	timestamp?: number;
 	updated?: string;
 	duration?: number;
 }[] = [];
+let latestVideoId: string | undefined;
+
 let { filepath } = Astro.params;
 const pb = Astro.locals.pb;
+
 try {
 	let dir = fs.readdirSync(
 		`${BASE_VOLUME_PATH}${filepath ? "/" + filepath : ""}`,
@@ -32,19 +49,26 @@ try {
 		.collection("watched_timestamps")
 		.getFullList({
 			filter: `${dirFilter}`,
+			sort: "-updated",
 		});
 	// add watched timestamps to directory
-	directory = newDirectory.map((filename) => {
-		const watchedTimestamp = watchedTimestamps.find(
-			(wt) => wt.filepath === `${filepath}/${filename?.replace(".mp4", "")}`,
-		);
-		return {
-			path: filename,
-			timestamp: watchedTimestamp?.timestamp,
-			updated: watchedTimestamp?.updated,
-			duration: watchedTimestamp?.duration,
-		};
-	});
+	latestVideoId = watchedTimestamps?.[0]?.id;
+	directory = newDirectory
+		.map((filename) => {
+			const watchedTimestamp = watchedTimestamps.find((wt, idx) => {
+				const isSamePath =
+					wt.filepath === `${filepath}/${filename?.replace(".mp4", "")}`;
+				return isSamePath;
+			});
+			return {
+				id: watchedTimestamp?.id ?? "NO ID FOUND",
+				path: filename,
+				timestamp: watchedTimestamp?.timestamp,
+				updated: watchedTimestamp?.updated,
+				duration: watchedTimestamp?.duration,
+			};
+		})
+		.sort(sortByPath);
 	console.log({ watchedTimestamps, dirFilter });
 } catch (err) {
 	console.error(err);
@@ -54,7 +78,7 @@ try {
 <Layout title="Welcome to Astro.">
 	<main>
 		<BackButton filepath={filepath ?? ""} />
-		<DirectoryList {filepath} {directory} />
+		<DirectoryList {filepath} {directory} {latestVideoId} />
 	</main>
 </Layout>
 
