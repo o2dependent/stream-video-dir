@@ -58,6 +58,7 @@ console.log({ startTime });
 						socket.emit("timeupdate", {
 							filepath,
 							time: (e.currentTarget as HTMLVideoElement).currentTime,
+							duration: (e.currentTarget as HTMLVideoElement).duration,
 						});
 					};
 					const video = this.querySelector("video");

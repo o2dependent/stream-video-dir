@@ -26,8 +26,7 @@ io.on("connection", (socket) => {
 	console.log({ device_id, profile_id });
 	socket.on("timeupdate", async (data) => {
 		if (!profile_id) return socket.emit("timeupdated", { success: false });
-		let { filepath, time } = data;
-		console.log({ filepath, time });
+		let { filepath, time, duration } = data;
 		let timestamp: RecordModel | undefined;
 		// get file or create a new one
 		try {
@@ -41,7 +40,7 @@ io.on("connection", (socket) => {
 			try {
 				timestamp = await pb
 					.collection("watched_timestamps")
-					.update(timestamp.id, { timestamp: time });
+					.update(timestamp.id, { timestamp: time, duration });
 			} catch (error) {
 				console.error("Failed to update timestamp", error);
 				return;
@@ -51,14 +50,13 @@ io.on("connection", (socket) => {
 				filepath,
 				profile: profile_id,
 				timestamp: time,
+				duration,
 			});
 		}
-		console.log({ timestamp });
 		socket.emit("timeupdated", { success: true });
 	});
 
 	socket.on("join", (deviceName) => {
-		console.log("join");
 		if (deviceName) devices[deviceName] = socket.id;
 		socket.emit("joined", { devices });
 	});
