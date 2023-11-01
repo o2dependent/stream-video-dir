@@ -13,9 +13,10 @@ if (Astro.request.method === "POST") {
 	// get query params
 	const params = [...Astro.url.searchParams.keys()];
 
-	if (params.includes("id")) {
-		const id = Astro.url.searchParams.get("id");
-		if (id === null) {
+	if (params.includes("signin")) {
+		const data = await Astro.request.formData();
+		const id = data.get("profile_id");
+		if (!id || typeof id !== "string") {
 			errors.message = "Something went wrong! Try again";
 			return;
 		}
@@ -60,11 +61,13 @@ if (Astro.request.method === "POST") {
 <Layout title="Profiles">
 	{
 		profiles.length > 0 ? (
-			profiles?.map((profile) => (
-				<form method="POST" action={`?id=${profile.id}`}>
-					<button type="submit">{profile.name}</button>
-				</form>
-			))
+			<form method="POST" action={`?signin`}>
+				{profiles?.map((profile) => (
+					<button value={profile.name} name="profile_id" type="submit">
+						{profile.name}
+					</button>
+				))}
+			</form>
 		) : (
 			<form
 				method="POST"
