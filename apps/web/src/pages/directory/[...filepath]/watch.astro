@@ -159,6 +159,7 @@ try {
 										const isCurrentVideo = idx === latestVideoIdx;
 										return (
 											<a
+												data-duration={duration}
 												id={`directory-list-item-${idx}`}
 												href={`/directory/${
 													Astro.params.filepath
@@ -187,7 +188,7 @@ try {
 															}`}
 														>
 															<div
-																class={`h-full ${
+																class={`directory-list-item-progress h-full ${
 																	itemPercent >= 99.9
 																		? "bg-green-500"
 																		: isCurrentVideo
@@ -212,7 +213,9 @@ try {
 
 		<script>
 			import { io } from "socket.io-client";
-			console.log("HELLO");
+
+			let currentVideoProgress: HTMLElement | undefined | null;
+			let currentVideoDuration: number | undefined;
 			class EOVideoPlayer extends HTMLElement {
 				constructor() {
 					super();
@@ -228,6 +231,14 @@ try {
 							time: (e.currentTarget as HTMLVideoElement).currentTime,
 							duration: (e.currentTarget as HTMLVideoElement).duration,
 						});
+
+						if (currentVideoProgress && currentVideoDuration) {
+							const percent =
+								((e.currentTarget as HTMLVideoElement).currentTime /
+									currentVideoDuration) *
+								100;
+							currentVideoProgress.style.width = `${percent}%`;
+						}
 					};
 					const video = this.querySelector("video");
 					video?.addEventListener("timeupdate", timeupdate);
@@ -241,10 +252,14 @@ try {
 						`#directory-list #directory-list-item-${this.dataset.latestVideoIdx}`,
 					);
 					const container = this.querySelector("#directory-list");
-					console.log({
-						st: currentVideo?.scrollTop,
-						currentVideo,
-					});
+
+					currentVideoDuration = parseInt(
+						currentVideo?.dataset.duration ?? "0",
+					);
+					currentVideoProgress = currentVideo?.querySelector(
+						".directory-list-item-progress",
+					);
+
 					container?.scrollTo({
 						top: (currentVideo?.offsetTop ?? 0) - 42,
 					});
