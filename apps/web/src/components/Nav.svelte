@@ -50,18 +50,18 @@
 	};
 </script>
 
-<div class="py-2 bg-purple-700/50">
+<div class="py-2 bg-purple-500/10">
 	<div class="max-w-screen-3xl w-full mx-auto">
 		<nav class="mx-auto flex w-full justify-between">
 			<div>
 				<a
-					class="px-2 block py-1 rounded bg-purple-500 text-white"
+					class="px-2 block py-1 rounded bg-slate-50/10 text-white"
 					href="/directory">Home Directory</a
 				>
 			</div>
 			<div class="flex gap-2">
 				<button
-					class="px-2 py-1 rounded bg-purple-500 text-white"
+					class="px-2 py-1 rounded bg-slate-50/10 text-white"
 					type="button"
 					on:click={openPassToDeviceModal}
 				>
@@ -69,16 +69,16 @@
 				</button>
 				{#if profile}
 					<a
-						class="px-2 block py-1 rounded bg-purple-500 text-white"
+						class="px-2 block py-1 rounded bg-slate-50/10 text-white"
 						href="/profile">{profile}</a
 					>
 				{:else}
-					<a class="px-2 block py-1 rounded bg-purple-500 text-white" href="/"
+					<a class="px-2 block py-1 rounded bg-slate-50/10 text-white" href="/"
 						>Login</a
 					>
 				{/if}
 				<button
-					class="px-2 py-1 rounded bg-purple-500 text-white"
+					class="px-2 py-1 rounded bg-slate-50/10 text-white"
 					type="button"
 					on:click={openModal}
 				>

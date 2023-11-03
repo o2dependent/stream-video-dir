@@ -20,7 +20,7 @@ const profile = Astro.locals.profile?.name;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body class="bg-slate-950 text-slate-50">
+	<body class="bg-zinc-950 text-slate-50">
 		<Nav client:only="svelte" {hostname} {pathname} {profile} />
 		<div class="w-full mx-auto flex flex-col gap-2">
 			<slot />

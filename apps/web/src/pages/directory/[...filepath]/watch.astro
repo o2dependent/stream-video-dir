@@ -29,6 +29,7 @@ console.log({ startTime });
 //TODO: MOVE THE BELOW CODE INTO "DirectoryList.astro" after moving the svelte file to astro
 import { BASE_VOLUME_PATH } from "$lib/constants";
 import fs from "fs";
+import VideoThumbnail from "$components/VideoThumbnail.svelte";
 const sortByPath = (a: any, b: any) => {
 	const aPath = a.path.split(" ");
 	const bPath = b.path.split(" ");
@@ -111,12 +112,12 @@ try {
 			data-filepath={filepath}
 			data-latest-video-idx={latestVideoIdx}
 		>
-			<div class="w-full h-[80vh] relative">
+			<div id="video-container" class="w-full h-[90vh] relative">
 				<div
 					class="absolute top-0 left-0 h-full w-full flex flex-col items-center justify-center bg-black ring-gray-900 -z-10"
 				>
 				</div>
-				<video class="h-full object-contain mx-auto" controls>
+				<video class="h-full w-full object-contain mx-auto" autoplay controls>
 					<source
 						src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
 						type="video/mp4"
@@ -126,11 +127,9 @@ try {
 			</div>
 		</eo-video-player>
 		<div class="">
-			<div class="max-w-screen-3xl mx-auto px-4 grid grid-cols-[1fr_auto]">
+			<div class="max-w-screen-3xl w-full mx-auto px-4 flex flex-col">
 				<h1 class="text-5xl">{filepath?.split("/")?.at(-1)}</h1>
-				<div
-					class="grid grid-cols-1 max-w-sm pt-10 relative rounded overflow-hidden"
-				>
+				<div class="grid grid-cols-1 pt-10 relative rounded overflow-hidden">
 					<div
 						class="px-4 text-xl font-bold h-10 absolute top-0 left-0 bg-slate-900 w-full flex items-center"
 					>
@@ -148,63 +147,44 @@ try {
 						</a>
 					</div>
 					<eo-directory-list data-latest-video-idx={latestVideoIdx}>
-						<div id="directory-list" class="max-h-64 overflow-y-scroll py-1">
-							{
-								directory?.map(
-									({ path, timestamp, updated, duration, id }, idx) => {
-										//TODO: add directory in list later
-										if (!path.includes(".mp4")) return;
-										const itemPercent =
-											((timestamp ?? 0) / (duration ?? 1)) * 100;
-										const isCurrentVideo = idx === latestVideoIdx;
-										return (
-											<a
-												data-duration={duration}
-												id={`directory-list-item-${idx}`}
-												href={`/directory/${
-													Astro.params.filepath
-														?.split("/")
-														?.slice(0, -1)
-														?.join("/") ?? ""
-												}/${path.replace(".mp4", "")}/watch`}
-											>
-												<div
-													class={`flex flex-col ring-1  ${
-														isCurrentVideo
-															? "ring-orange-700/50 hover:ring-orange-700 bg-orange-900/25 hover:bg-orange-700/25"
-															: "ring-slate-700/0 hover:ring-purple-700 bg-purple-900/10 hover:bg-purple-700/10"
-													} px-4 py-2 transition-shadow duration-150 ease-in-out`}
-												>
-													<p>{path}</p>
-													<div class="grid grid-cols-2 w-full">
-														<div
-															class:border-green-500={itemPercent >= 99.9}
-															class={`w-full overflow-hidden rounded-full h-2 border ${
-																itemPercent >= 99.9
-																	? "border-green-500"
-																	: isCurrentVideo
-																	? "border-orange-500"
-																	: "border-purple-500"
-															}`}
-														>
-															<div
-																class={`directory-list-item-progress h-full ${
-																	itemPercent >= 99.9
-																		? "bg-green-500"
-																		: isCurrentVideo
-																		? "bg-orange-500"
-																		: "bg-purple-500"
-																}`}
-																style={`width: ${itemPercent}%`}
-															/>
-														</div>
-													</div>
+						<div id="directory-list" class="swiper py-1 w-full">
+							<div class="swiper-wrapper">
+								{
+									directory?.map(
+										({ path, timestamp, updated, duration, id }, idx) => {
+											//TODO: add directory in list later
+											if (!path.includes(".mp4")) return;
+
+											const isCurrentVideo = idx === latestVideoIdx;
+											return (
+												<div class="swiper-slide">
+													<VideoThumbnail
+														client:load
+														videoTitle={path.replace(".mp4", "")}
+														videoPath={`${
+															Astro.params.filepath
+																?.split("/")
+																?.slice(0, -1)
+																?.join("/") ?? ""
+														}/${path.replace(".mp4", "")}`}
+														{isCurrentVideo}
+														{duration}
+														{timestamp}
+														{idx}
+													/>
 												</div>
-											</a>
-										);
-									},
-								)
-							}
+											);
+										},
+									)
+								}
+							</div>
+
+							<!-- If we need navigation buttons -->
+							<!-- <div class="swiper-button-prev"></div>
+							<div class="swiper-button-next"></div> -->
+
+							<!-- If we need scrollbar -->
+							<div class="swiper-scrollbar"></div>
 						</div>
 					</eo-directory-list>
 				</div>
@@ -213,9 +193,11 @@ try {
 
 		<script>
 			import { io } from "socket.io-client";
+			import Swiper from "swiper";
+			import "swiper/css";
 
 			let currentVideoProgress: HTMLElement | undefined | null;
-			let currentVideoDuration: number | undefined;
+			let currentVideoProgressContainer: HTMLElement | undefined | null;
 			class EOVideoPlayer extends HTMLElement {
 				constructor() {
 					super();
@@ -225,6 +207,8 @@ try {
 						withCredentials: true,
 					});
 
+					const video = this.querySelector("video");
+
 					const timeupdate = (e: Event) => {
 						socket.emit("timeupdate", {
 							filepath,
@@ -232,15 +216,25 @@ try {
 							duration: (e.currentTarget as HTMLVideoElement).duration,
 						});
 
-						if (currentVideoProgress && currentVideoDuration) {
+						if (
+							currentVideoProgress &&
+							currentVideoProgressContainer &&
+							video?.duration
+						) {
 							const percent =
 								((e.currentTarget as HTMLVideoElement).currentTime /
-									currentVideoDuration) *
+									video?.duration) *
 								100;
 							currentVideoProgress.style.width = `${percent}%`;
+							if (percent >= 99.9) {
+								currentVideoProgress.classList.remove("bg-orange-500");
+								currentVideoProgress.classList.add("bg-green-500");
+							} else {
+								currentVideoProgress.classList.remove("bg-green-500");
+								currentVideoProgress.classList.add("bg-orange-500");
+							}
 						}
 					};
-					const video = this.querySelector("video");
 					video?.addEventListener("timeupdate", timeupdate);
 				}
 			}
@@ -252,12 +246,36 @@ try {
 						`#directory-list #directory-list-item-${this.dataset.latestVideoIdx}`,
 					);
 					const container = this.querySelector("#directory-list");
+					if (container) {
+						const swiper = new Swiper("#directory-list", {
+							slidesPerView: 3,
+							spaceBetween: 4,
+							freeMode: {
+								enabled: true,
+								momentumRatio: 2,
+								sticky: false,
+								momentum: true,
+							},
+							breakpoints: {
+								768: {
+									slidesPerView: 3,
+								},
+								1024: {
+									slidesPerView: 5,
+								},
+							},
+						});
+						if (typeof this.dataset.latestVideoIdx !== "undefined")
+							swiper.slideTo(
+								Math.max(0, parseInt(this.dataset.latestVideoIdx) - 1),
+							);
+					}
 
-					currentVideoDuration = parseInt(
-						currentVideo?.dataset.duration ?? "0",
-					);
 					currentVideoProgress = currentVideo?.querySelector(
 						".directory-list-item-progress",
+					);
+					currentVideoProgressContainer = currentVideo?.querySelector(
+						".directory-list-item-progress-container",
 					);
 
 					container?.scrollTo({
