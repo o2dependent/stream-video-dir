@@ -1,6 +1,6 @@
 ---
 import Layout from "$layouts/Layout.astro";
-import BackButton from "$components/BackButton.svelte";
+import VideoPlayer from "$components/VideoPlayer.svelte";
 
 // get filepath param
 const { filepath } = Astro.params;
@@ -112,18 +112,31 @@ try {
 			data-filepath={filepath}
 			data-latest-video-idx={latestVideoIdx}
 		>
-			<div id="video-container" class="w-full h-[90vh] relative">
+			<div id="video-container" class="w-full relative">
 				<div
 					class="absolute top-0 left-0 h-full w-full flex flex-col items-center justify-center bg-black ring-gray-900 -z-10"
 				>
 				</div>
-				<video class="h-full w-full object-contain mx-auto" autoplay controls>
-					<source
-						src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
-						type="video/mp4"
-					/>
-					 Your browser does not support the video tag.
-				</video>
+				<VideoPlayer
+					client:load
+					filepath={filepath ?? ""}
+					nextVid={latestVideoIdx !== undefined
+						? {
+								videoPath: `${
+									Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ??
+									""
+								}/${directory?.[latestVideoIdx + 1]?.path.replace(".mp4", "")}`,
+								videoTitle: directory?.[latestVideoIdx + 1]?.path.replace(
+									".mp4",
+									"",
+								),
+								duration: directory?.[latestVideoIdx + 1]?.duration,
+								timestamp: directory?.[latestVideoIdx + 1]?.timestamp,
+						  }
+						: undefined}
+					{startTime}
+					{hostname}
+				/>
 			</div>
 		</eo-video-player>
 		<div class="">
@@ -192,7 +205,6 @@ try {
 		</div>
 
 		<script>
-			import { io } from "socket.io-client";
 			import Swiper from "swiper";
 			import "swiper/css";
 
@@ -201,21 +213,9 @@ try {
 			class EOVideoPlayer extends HTMLElement {
 				constructor() {
 					super();
-					const hostname = this.dataset.hostname;
-					const filepath = this.dataset.filepath;
-					const socket = io(`${hostname}:5432`, {
-						withCredentials: true,
-					});
-
 					const video = this.querySelector("video");
 
 					const timeupdate = (e: Event) => {
-						socket.emit("timeupdate", {
-							filepath,
-							time: (e.currentTarget as HTMLVideoElement).currentTime,
-							duration: (e.currentTarget as HTMLVideoElement).duration,
-						});
-
 						if (
 							currentVideoProgress &&
 							currentVideoProgressContainer &&
