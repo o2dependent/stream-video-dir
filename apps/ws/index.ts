@@ -46,12 +46,18 @@ io.on("connection", (socket) => {
 				return;
 			}
 		} catch (error) {
-			timestamp = await pb.collection("watched_timestamps").create({
-				filepath,
-				profile: profile_id,
-				timestamp: time,
-				duration,
-			});
+			try {
+				timestamp = await pb.collection("watched_timestamps").create({
+					filepath,
+					profile: profile_id,
+					timestamp: time,
+					duration,
+				});
+			} catch (error) {
+				console.error("Failed to create timestamp", error);
+				socket.emit("timeupdated", { success: false });
+				return;
+			}
 		}
 		socket.emit("timeupdated", { success: true });
 	});
