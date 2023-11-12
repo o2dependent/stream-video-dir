@@ -120,6 +120,9 @@ try {
 				<VideoPlayer
 					client:load
 					filepath={filepath ?? ""}
+					duration={latestVideoIdx !== undefined
+						? directory?.[latestVideoIdx]?.duration
+						: undefined}
 					nextVid={latestVideoIdx !== undefined
 						? {
 								videoPath: `${

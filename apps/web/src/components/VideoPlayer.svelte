@@ -4,6 +4,7 @@
 	import { fade } from "svelte/transition";
 
 	export let filepath: string;
+	export let duration: number | undefined;
 	export let startTime: number | undefined;
 	export let hostname: string;
 	export let nextVid:
@@ -21,6 +22,13 @@
 	let isEnded = false;
 	let paused = true;
 	let currentTime: number = startTime ?? 0;
+	$: {
+		const isVideoLoaded = video?.readyState === 4;
+		if (isVideoLoaded) {
+			currentTime = video?.currentTime ?? 0;
+			duration = video?.duration ?? 0;
+		}
+	}
 	let isFullscreen = false;
 	let isHovered = false;
 
@@ -39,7 +47,7 @@
 	};
 
 	$: curTime = formatTime(currentTime);
-	$: durationTime = formatTime(video?.duration ?? 0);
+	$: durationTime = formatTime(duration ?? 0);
 
 	$: socket = io(`${hostname}:5432`, {
 		withCredentials: true,
@@ -53,6 +61,7 @@
 		socket.emit("timeupdate", {
 			filepath,
 			time: target.currentTime,
+			duration: video?.duration ?? 0,
 		});
 	};
 	const ended = (e: Event) => {};
@@ -64,6 +73,26 @@
 		hoverTimeout = setTimeout(() => {
 			isHovered = false;
 		}, 2000);
+	};
+
+	let dblClickTimeout: NodeJS.Timeout;
+	const togglePause = () => {
+		clearTimeout(dblClickTimeout);
+		dblClickTimeout = setTimeout(() => {
+			if (paused) {
+				video?.play?.();
+			} else {
+				video?.pause?.();
+			}
+		}, 600);
+	};
+
+	const toggleFullscreen = () => {
+		clearTimeout(dblClickTimeout);
+		const curFullscreen = document.fullscreenElement;
+		if (curFullscreen) document.exitFullscreen();
+		else container.requestFullscreen();
+		isFullscreen = !isFullscreen;
 	};
 </script>
 
@@ -77,17 +106,12 @@
 		bind:currentTime
 		class:max-h-[90vh]={!isFullscreen}
 		class:h-full={isFullscreen}
-		class="object-contain w-full"
+		class="object-contain h-full w-full"
+		on:dblclick={toggleFullscreen}
 		on:mousemove={mousemove}
 		on:timeupdate={timeupdate}
 		on:ended={ended}
-		on:click={() => {
-			if (paused) {
-				video?.play?.();
-			} else {
-				video?.pause?.();
-			}
-		}}
+		on:click={togglePause}
 	>
 		<source
 			src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
@@ -105,17 +129,17 @@
 		<div class="relative w-full">
 			<input
 				min="0"
-				max={video?.duration}
+				max={duration ?? 0}
 				on:change={(e) => {
 					video.currentTime = Number(e.currentTarget?.value);
 				}}
-				value={currentTime}
+				value={duration ? currentTime : 0}
 				type="range"
 			/>
 		</div>
-		<div class="flex flex-col w-full flex-grow">
-			<div class="flex justify-betweens h-full w-full">
-				<div class="h-full w-full flex gap-2 pl-3">
+		<div class="flex flex-col w-full flex-grow h-[calc(100%+0.75rem)] -mt-2">
+			<div class="flex justify-betweens h-full w-full px-3">
+				<div class="h-full w-full flex gap-2">
 					{#if paused}
 						<button type="button" id="play" on:click={() => video.play()}>
 							<svg
@@ -220,7 +244,7 @@
 			</div>
 		</div>
 	</div>
-	{#if video?.currentTime && video?.currentTime === video?.duration}
+	{#if video?.currentTime && video?.currentTime === duration}
 		<div
 			in:fade={{ duration: 500 }}
 			out:fade={{ duration: 150 }}
