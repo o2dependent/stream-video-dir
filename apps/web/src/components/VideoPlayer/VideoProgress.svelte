@@ -138,7 +138,7 @@
 				in:fly={{ y: -4, duration: 150 }}
 				out:fly={{ y: 4, duration: 150 }}
 				bind:this={hoverTimestamp}
-				class="absolute -top-full -translate-y-full w-fit select-none bg-black/50 text-white px-1 py-0.5 rounded whitespace-nowrap"
+				class="absolute -top-full -translate-y-full w-fit select-none bg-black/50 text-white px-1 py-0.5 rounded whitespace-nowrap shadow-md"
 				style="left: min(calc(100% - {hoverTimestamp?.clientWidth ??
 					0}px),max(calc({hoverPercent}% - {(hoverTimestamp?.clientWidth ?? 0) /
 					2}px), 0%));"
@@ -162,84 +162,3 @@
 		type="range"
 	/> -->
 </div>
-
-<style lang="postcss">
-	input {
-		/* --c: rgb(168 85 247 / var(--tw-text-opacity)); active color */
-		--c: rgb(168 85 247); /* active color */
-		--g: 0.25rem; /* the gap */
-		--l: 0.25rem; /* line thickness*/
-		--s: 1rem; /* thumb size*/
-
-		width: 100%;
-		height: var(--s); /* needed for Firefox*/
-		--_c: color-mix(in srgb, var(--c), #000 var(--p, 0%));
-		@apply w-full appearance-none bg-none bg-transparent cursor-pointer overflow-hidden transition-all origin-center;
-	}
-	input:focus-visible,
-	input:hover {
-		--p: 25%;
-	}
-	input:active,
-	input:focus-visible {
-		--_b: var(--s);
-	}
-	/* chromium */
-	input[type="range" i]::-webkit-slider-thumb {
-		height: var(--s);
-		aspect-ratio: 1;
-		border-radius: 50%;
-		box-shadow: 0 0 0 var(--_b, var(--l)) inset var(--_c);
-		border-image: linear-gradient(90deg, var(--c) 50%, #ababab 0) 1/0 100vw/0
-			calc(100vw + var(--g));
-		clip-path: polygon(
-			0 calc(50% + var(--l) / 2),
-			-100vw calc(50% + var(--l) / 2),
-			-100vw calc(50% - var(--l) / 2),
-			0 calc(50% - var(--l) / 2),
-			0 0,
-			100% 0,
-			100% calc(50% - var(--l) / 2),
-			100vw calc(50% - var(--l) / 2),
-			100vw calc(50% + var(--l) / 2),
-			100% calc(50% + var(--l) / 2),
-			100% 100%,
-			0 100%
-		);
-		-webkit-appearance: none;
-		appearance: none;
-		transition: 0.3s;
-	}
-	/* Firefox */
-	input[type="range"]::-moz-range-thumb {
-		height: var(--s);
-		width: var(--s);
-		background: none;
-		border-radius: 50%;
-		box-shadow: 0 0 0 var(--_b, var(--l)) inset var(--_c);
-		border-image: linear-gradient(90deg, var(--_c) 50%, #ababab 0) 1/0 100vw/0
-			calc(100vw + var(--g));
-		clip-path: polygon(
-			0 calc(50% + var(--l) / 2),
-			-100vw calc(50% + var(--l) / 2),
-			-100vw calc(50% - var(--l) / 2),
-			0 calc(50% - var(--l) / 2),
-			0 0,
-			100% 0,
-			100% calc(50% - var(--l) / 2),
-			100vw calc(50% - var(--l) / 2),
-			100vw calc(50% + var(--l) / 2),
-			100% calc(50% + var(--l) / 2),
-			100% 100%,
-			0 100%
-		);
-		-moz-appearance: none;
-		appearance: none;
-		transition: 0.3s;
-	}
-	@supports not (color: color-mix(in srgb, red, red)) {
-		input {
-			--_c: var(--c);
-		}
-	}
-</style>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Tooltip from "$components/Tooltip.svelte";
 	import PlayPauseIcon from "./PlayPauseIcon.svelte";
 
 	export let video: HTMLVideoElement;
@@ -7,12 +8,18 @@
 	export let height: number = 24;
 </script>
 
-<button
-	data-tip="Play/Pause"
-	type="button"
-	class="play {className}"
-	class:paused={video?.paused}
-	on:click={() => (video?.paused ? video.play() : video.pause())}
+<Tooltip
+	tip={video?.paused ? "Play" : "Pause"}
+	className="aspect-square h-full"
+	pos="top left"
 >
-	<PlayPauseIcon {width} {height} />
-</button>
+	<button
+		data-tip="Play/Pause"
+		type="button"
+		class="play w-full h-full flex items-center justify-center {className}"
+		class:paused={video?.paused}
+		on:click={() => (video?.paused ? video.play() : video.pause())}
+	>
+		<PlayPauseIcon {width} {height} />
+	</button>
+</Tooltip>
