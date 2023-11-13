@@ -4,6 +4,7 @@
 </script>
 
 <button
+	data-tip="Play/Pause"
 	type="button"
 	id="play"
 	class:paused={video?.paused}

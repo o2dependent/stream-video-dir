@@ -20,22 +20,22 @@
 		clearTimeout(hoverTimeout);
 		hoverTimeout = setTimeout(() => {
 			isHovering = false;
-		}, 500);
+		}, 125);
 	};
 </script>
 
 {#if videoPath}
 	<a
-		class="relative"
+		class="relative flex items-center justify-center"
 		on:mouseenter={mouseenter}
 		on:mouseleave={mouseleave}
 		href={`/directory/${videoPath}/watch`}
 	>
 		{#if isHovering}
 			<div
-				in:fly={{ y: 20, duration: 300 }}
-				out:fly={{ y: 20, duration: 175 }}
-				class="absolute top-0 -translate-y-full left-0 w-72 bg-slate-900/50 backdrop-blur-md rounded-xl overflow-hidden border border-slate-800/50"
+				in:fly={{ y: 10, duration: 300 }}
+				out:fly={{ y: 10, duration: 100 }}
+				class="absolute top-0 translate-y-[calc(-100%-0.5rem)] left-0 w-72 bg-slate-900/50 backdrop-blur-md rounded-xl overflow-hidden border border-slate-800/50"
 			>
 				<ThumbnailImage {duration} {timestamp} {videoPath} {videoTitle} />
 				<p class="px-1 pt-2 pb-3 font-semibold">{videoTitle}</p>
@@ -57,12 +57,3 @@
 		>
 	</a>
 {/if}
-
-<style lang="postcss">
-	a {
-		@apply h-full aspect-square flex items-center justify-center bg-white/0 transition-colors;
-	}
-	a:hover {
-		@apply bg-white/25;
-	}
-</style>
