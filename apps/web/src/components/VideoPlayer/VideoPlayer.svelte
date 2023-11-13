@@ -3,10 +3,12 @@
 	import { padNum } from "./../../lib/padTime.ts";
 	import { io } from "socket.io-client";
 	import VideoThumbnail from "../VideoThumbnail.svelte";
-	import { fade } from "svelte/transition";
+	import { fade, scale } from "svelte/transition";
 	import NextVideoButton from "./NextVideoButton.svelte";
 	import PlayPauseButton from "./PlayPauseButton.svelte";
 	import VideoProgress from "./VideoProgress.svelte";
+	import PlayPauseIcon from "./PlayPauseIcon.svelte";
+	import VideoPlayPausePopup from "./VideoPlayPausePopup.svelte";
 
 	export let filepath: string;
 	export let duration: number | undefined;
@@ -112,7 +114,7 @@
 		<track kind="captions" />
 		Your browser does not support the video tag.
 	</video>
-
+	<VideoPlayPausePopup {paused} />
 	<div
 		aria-label="Video controls"
 		id="controls"
@@ -123,7 +125,7 @@
 		<div class="flex flex-col w-full flex-grow h-full">
 			<div class="flex justify-betweens h-full w-full">
 				<div class="h-full w-full flex gap-2">
-					<PlayPauseButton {paused} {video} />
+					<PlayPauseButton {video} />
 					<NextVideoButton
 						duration={nextVid?.duration}
 						videoPath={nextVid?.videoPath}
