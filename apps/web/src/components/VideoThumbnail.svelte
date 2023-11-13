@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ThumbnailImage from "./ThumbnailImage.svelte";
+
 	export let videoPath: string;
 	export let videoTitle: string;
 	export let idx: number | undefined = undefined;
@@ -28,13 +30,7 @@
 	} transition-shadow duration-150 ease-in-out`}
 >
 	<div class="relative">
-		<img
-			class="w-full max-w-md aspect-video object-contain"
-			on:mouseenter={mouseenter}
-			on:mouseleave={mouseleave}
-			src="/thumbnail/{videoPath}.{isHovering ? 'gif' : 'png'}"
-			alt={videoTitle}
-		/>
+		<ThumbnailImage {duration} {timestamp} {videoPath} {videoTitle} />
 		<div
 			class:border-green-500={itemPercent >= 99.9}
 			class={`directory-list-item-progress-container absolute bottom-0 left-0 w-full overflow-hidden h-2`}
