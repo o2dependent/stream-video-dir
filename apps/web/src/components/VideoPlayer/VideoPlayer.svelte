@@ -27,6 +27,7 @@
 
 	let container: HTMLDivElement;
 	let video: HTMLVideoElement;
+	let controlsContainer: HTMLDivElement;
 	let isEnded = false;
 	let paused = true;
 	let currentTime: number = startTime ?? 0;
@@ -123,11 +124,15 @@
 		class:opacity-100={paused || isHovered}
 	>
 		<VideoProgress {durationTime} {duration} bind:currentTime bind:video />
-		<div class="flex flex-col w-full flex-grow h-full">
+		<div
+			bind:this={controlsContainer}
+			class="flex flex-col w-full flex-grow h-full relative"
+		>
 			<div class="flex justify-betweens h-full w-full">
 				<div class="h-full w-full flex gap-2">
 					<PlayPauseButton {video} />
 					<NextVideoButton
+						containEl={controlsContainer}
 						duration={nextVid?.duration}
 						videoPath={nextVid?.videoPath}
 						timestamp={nextVid?.timestamp}

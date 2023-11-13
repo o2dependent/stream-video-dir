@@ -1,59 +1,41 @@
 <script lang="ts">
-	import { fly } from "svelte/transition";
 	import ThumbnailImage from "$components/ThumbnailImage.svelte";
+	import Tooltip from "$components/Tooltip.svelte";
 
 	export let duration: number | undefined;
 	export let videoPath: string | undefined;
 	export let videoTitle: string;
 	export let timestamp: number | undefined;
-
-	let isHovering = false;
-	let hoverTimeout: NodeJS.Timeout;
-
-	const mouseenter = () => {
-		clearTimeout(hoverTimeout);
-		hoverTimeout = setTimeout(() => {
-			isHovering = true;
-		}, 500);
-	};
-	const mouseleave = () => {
-		clearTimeout(hoverTimeout);
-		hoverTimeout = setTimeout(() => {
-			isHovering = false;
-		}, 125);
-	};
+	export let containEl: HTMLDivElement | undefined = undefined;
 </script>
 
 {#if videoPath}
-	<a
-		class="relative flex items-center justify-center"
-		on:mouseenter={mouseenter}
-		on:mouseleave={mouseleave}
-		href={`/directory/${videoPath}/watch`}
-	>
-		{#if isHovering}
-			<div
-				in:fly={{ y: 10, duration: 300 }}
-				out:fly={{ y: 10, duration: 100 }}
-				class="absolute top-0 translate-y-[calc(-100%-0.5rem)] left-0 w-72 bg-slate-900/50 backdrop-blur-md rounded-xl overflow-hidden border border-slate-800/50"
-			>
-				<ThumbnailImage {duration} {timestamp} {videoPath} {videoTitle} />
-				<p class="px-1 pt-2 pb-3 font-semibold">{videoTitle}</p>
-			</div>
-		{/if}
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			width="24"
-			height="24"
-			viewBox="0 0 24 24"
-			><g fill="none"
-				><path
-					d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"
-				/><path
-					fill="currentColor"
-					d="M3.569 5.865A1.332 1.332 0 0 1 5.415 4.8l.646.283l.511.233l.597.283l.676.331l.49.249l.793.414l.564.304l.588.326l.613.349l.633.37l.599.361l.564.349l.778.496l.694.458l.607.414l.517.363l.541.394l.206.154c.71.535.71 1.594.001 2.13l-.43.319l-.273.198l-.664.465l-.595.404l-.443.292l-.73.47l-.81.5l-.581.35l-.615.36l-.62.352l-.593.33l-.566.305l-.538.283l-.748.381l-.673.331l-.773.364l-.744.332l-.224.096a1.332 1.332 0 0 1-1.844-1.065l-.08-.698l-.071-.767l-.053-.689l-.05-.78l-.028-.57l-.024-.605l-.019-.64l-.015-1.026v-.715l.015-1.024l.03-.948l.026-.587l.03-.55l.052-.75l.054-.657l.07-.722l.063-.535ZM19 5a1 1 0 0 1 .993.883L20 6v12a1 1 0 0 1-.883.993L19 19h-1a1 1 0 0 1-.993-.883L17 18V6a1 1 0 0 1 .883-.993L18 5h1Z"
-				/></g
-			></svg
+	<Tooltip {containEl} className="aspect-square h-full" tip pos="top center">
+		<div
+			slot="tip"
+			class="w-72 bg-slate-900/50 backdrop-blur-md rounded-xl overflow-hidden border border-slate-800/50"
 		>
-	</a>
+			<ThumbnailImage {duration} {timestamp} {videoPath} {videoTitle} />
+			<p class="px-1 pt-2 pb-3 font-semibold">{videoTitle}</p>
+		</div>
+		<a
+			class="relative flex items-center justify-center w-full h-full aspect-square"
+			href={`/directory/${videoPath}/watch`}
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
+				><g fill="none"
+					><path
+						d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"
+					/><path
+						fill="currentColor"
+						d="M3.569 5.865A1.332 1.332 0 0 1 5.415 4.8l.646.283l.511.233l.597.283l.676.331l.49.249l.793.414l.564.304l.588.326l.613.349l.633.37l.599.361l.564.349l.778.496l.694.458l.607.414l.517.363l.541.394l.206.154c.71.535.71 1.594.001 2.13l-.43.319l-.273.198l-.664.465l-.595.404l-.443.292l-.73.47l-.81.5l-.581.35l-.615.36l-.62.352l-.593.33l-.566.305l-.538.283l-.748.381l-.673.331l-.773.364l-.744.332l-.224.096a1.332 1.332 0 0 1-1.844-1.065l-.08-.698l-.071-.767l-.053-.689l-.05-.78l-.028-.57l-.024-.605l-.019-.64l-.015-1.026v-.715l.015-1.024l.03-.948l.026-.587l.03-.55l.052-.75l.054-.657l.07-.722l.063-.535ZM19 5a1 1 0 0 1 .993.883L20 6v12a1 1 0 0 1-.883.993L19 19h-1a1 1 0 0 1-.993-.883L17 18V6a1 1 0 0 1 .883-.993L18 5h1Z"
+					/></g
+				></svg
+			>
+		</a>
+	</Tooltip>
 {/if}
