@@ -9,6 +9,7 @@
 	import FullscreenButton from "./FullscreenButton.svelte";
 	import VideoEndScreen from "./VideoEndScreen.svelte";
 	import PlayPauseIcon from "./PlayPauseIcon.svelte";
+	import KeyboardControls from "./KeyboardControls.svelte";
 
 	export let filepath: string;
 	export let duration: number | undefined;
@@ -63,12 +64,12 @@
 			filepath,
 			time: target.currentTime,
 			duration: video?.duration ?? 0,
+			log: true,
 		});
 	};
 	const ended = (e: Event) => {};
 
-	let hoverTimeout: NodeJS.Timeout;
-	const mousemove = (e: MouseEvent) => {
+	const tempShowControls = () => {
 		clearTimeout(hoverTimeout);
 		isHovered = true;
 		hoverTimeout = setTimeout(() => {
@@ -76,11 +77,16 @@
 		}, 2000);
 	};
 
+	let hoverTimeout: NodeJS.Timeout;
+	const mousemove = (e: MouseEvent) => {
+		tempShowControls();
+	};
+
 	let dblClickTimeout: NodeJS.Timeout;
 	const togglePause = () => {
 		clearTimeout(dblClickTimeout);
 		dblClickTimeout = setTimeout(() => {
-			if (paused) {
+			if (video?.paused) {
 				video?.play?.();
 			} else {
 				video?.pause?.();
@@ -102,6 +108,7 @@
 	class="video-player relative h-full w-full flex flex-col justify-center items-center"
 	class:cursor-none={!(paused || isHovered)}
 >
+	<KeyboardControls {video} {tempShowControls} />
 	<video
 		bind:this={video}
 		bind:paused
