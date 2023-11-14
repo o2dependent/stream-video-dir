@@ -13,10 +13,15 @@
 	<Tooltip {containEl} className="aspect-square h-full" tip pos="top center">
 		<div
 			slot="tip"
-			class="w-72 bg-slate-900/50 backdrop-blur-md rounded-xl overflow-hidden border border-slate-800/50"
+			class="w-72 bg-black/50 backdrop-blur-md border border-black/50 rounded-md overflow-hidden relative"
 		>
+			<div class="px-1 py-2 w-full flex flex-col gap-0">
+				<p class="font-semibold opacity-50">Next (Shift+N)</p>
+				<p class="line-clamp-2 text-ellipsis w-full whitespace-break-spaces">
+					{videoTitle}
+				</p>
+			</div>
 			<ThumbnailImage {duration} {timestamp} {videoPath} {videoTitle} />
-			<p class="px-1 pt-2 pb-3 font-semibold">{videoTitle}</p>
 		</div>
 		<a
 			class="relative flex items-center justify-center w-full h-full aspect-square"
