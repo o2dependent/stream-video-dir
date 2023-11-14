@@ -20,6 +20,6 @@
 		class:paused={video?.paused}
 		on:click={() => (video?.paused ? video.play() : video.pause())}
 	>
-		<PlayPauseIcon {width} {height} />
+		<PlayPauseIcon paused={video?.paused} {width} {height} />
 	</button>
 </Tooltip>
