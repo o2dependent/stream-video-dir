@@ -26,7 +26,8 @@ io.on("connection", (socket) => {
 	console.log({ device_id, profile_id });
 	socket.on("timeupdate", async (data) => {
 		if (!profile_id) return socket.emit("timeupdated", { success: false });
-		let { filepath, time, duration } = data;
+		let { filepath, time, duration, log } = data;
+		if (log) console.log({ filepath, time, duration });
 		let timestamp: RecordModel | undefined;
 		// get file or create a new one
 		try {
