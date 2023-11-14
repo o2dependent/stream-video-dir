@@ -17,8 +17,6 @@ const io = new Server(5432, {
 	},
 });
 
-const pb = new PocketBase("http://127.0.0.1:8090");
-
 io.on("connection", (socket) => {
 	console.log("------------ connection ------------");
 
@@ -26,6 +24,7 @@ io.on("connection", (socket) => {
 	const { device_id, profile_id } = cookie.parse(cookies ?? "");
 	console.log({ device_id, profile_id });
 	socket.on("timeupdate", async (data) => {
+		const pb = new PocketBase("http://127.0.0.1:8090");
 		if (!profile_id) return socket.emit("timeupdated", { success: false });
 		let { filepath, time, duration, log } = data;
 		if (log) console.log({ filepath, time, duration });
