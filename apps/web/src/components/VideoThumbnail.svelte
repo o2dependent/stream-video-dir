@@ -25,15 +25,15 @@
 	href={`/directory/${videoPath}/watch`}
 	class={`!w-full flex flex-col ring-1  ${
 		isCurrentVideo
-			? "ring-orange-700/50 hover:ring-orange-700 bg-orange-900/25 hover:bg-orange-700/25"
-			: "ring-slate-700/0 hover:ring-purple-700 bg-purple-900/10 hover:bg-purple-700/10"
+			? "ring-orange-700/50 hover:ring-orange-700"
+			: "ring-slate-700/0 hover:ring-purple-700"
 	} transition-shadow duration-150 ease-in-out`}
 >
-	<div class="relative">
+	<div class="relative rounded-lg overflow-hidden">
 		<ThumbnailImage {duration} {timestamp} {videoPath} {videoTitle} />
 		<div
 			class:border-green-500={itemPercent >= 99.9}
-			class={`directory-list-item-progress-container absolute bottom-0 left-0 w-full overflow-hidden h-2`}
+			class={`directory-list-item-progress-container absolute bottom-0 left-0 w-full overflow-hidden h-1`}
 		>
 			<div
 				class={`directory-list-item-progress h-full ${

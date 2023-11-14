@@ -2,14 +2,13 @@
 	import { formatTime } from "./../../lib/formatTime.ts";
 	import { padNum } from "./../../lib/padTime.ts";
 	import { io } from "socket.io-client";
-	import VideoThumbnail from "../VideoThumbnail.svelte";
-	import { fade, scale } from "svelte/transition";
 	import NextVideoButton from "./NextVideoButton.svelte";
 	import PlayPauseButton from "./PlayPauseButton.svelte";
 	import VideoProgress from "./VideoProgress.svelte";
-	import PlayPauseIcon from "./PlayPauseIcon.svelte";
 	import VideoPlayPausePopup from "./VideoPlayPausePopup.svelte";
 	import FullscreenButton from "./FullscreenButton.svelte";
+	import VideoEndScreen from "./VideoEndScreen.svelte";
+	import PlayPauseIcon from "./PlayPauseIcon.svelte";
 
 	export let filepath: string;
 	export let duration: number | undefined;
@@ -22,7 +21,6 @@
 				duration: number | undefined;
 				timestamp: number | undefined;
 		  }
-		| undefined
 		| undefined;
 
 	let container: HTMLDivElement;
@@ -36,6 +34,14 @@
 		if (isVideoLoaded) {
 			currentTime = video?.currentTime ?? 0;
 			duration = video?.duration ?? 0;
+		}
+	}
+	$: autoplayNext =
+		typeof window !== "undefined" &&
+		window.localStorage.getItem("autoplay") === "true";
+	$: {
+		if (typeof window !== "undefined") {
+			window.localStorage.setItem("autoplay", autoplayNext.toString());
 		}
 	}
 	let isFullscreen = false;
@@ -108,6 +114,7 @@
 		on:timeupdate={timeupdate}
 		on:ended={ended}
 		on:click={togglePause}
+		autoplay
 	>
 		<source
 			src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
@@ -154,60 +161,28 @@
 					</p>
 				</div>
 				<div class="w-full flex justify-end gap-2">
-					<label class="flex h-full items-center justify-center relative w-8">
+					<label
+						class="flex h-full items-center justify-center relative w-6 cursor-pointer"
+						class:paused={autoplayNext}
+					>
 						<input
 							type="checkbox"
-							class="absolute top-0 left-0 appearance-none h-full w-full"
+							class="absolute top-0 left-0 appearance-none h-full w-full peer cursor-pointer"
+							bind:checked={autoplayNext}
 						/>
-						<div class="h-2 w-full relative rounded-full bg-slate-500" />
+						<div
+							class="h-3 w-full absolute top-1/2 left-0 -translate-y-1/2 rounded-full bg-slate-700 peer-checked:bg-slate-600 transition-all"
+						/>
+						<div
+							class="absolute top-1/2 -translate-x-1/2 peer-checked:left-full left-0 w-4 h-4 rounded-full peer-checked:text-black text-black bg-white transition-all duration-150 ease-in-out transform -translate-y-1/2 flex items-center justify-center"
+						>
+							<PlayPauseIcon className="w-3 h-3" height={16} width={16} />
+						</div>
 					</label>
 					<FullscreenButton {container} bind:isFullscreen />
 				</div>
 			</div>
 		</div>
 	</div>
-	{#if video?.currentTime && video?.currentTime === duration}
-		<div
-			in:fade={{ duration: 500 }}
-			out:fade={{ duration: 150 }}
-			class="absolute z-10 top-0 left-0 w-full h-full flex justify-center items-center bg-black/75"
-		>
-			{#if nextVid}
-				<div
-					class="flex flex-col h-full items-center justify-center w-full"
-					style="background: radial-gradient(circle at 0% 100%,#a855f720, #a855f700), radial-gradient(circle at 100% 0%,#f9731630, #f9731600);"
-				>
-					<div class="grid grid-cols-2">
-						<button
-							type="button"
-							class="!aspect-auto flex-col !justify-end relative"
-						>
-							<svg
-								class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2"
-								xmlns="http://www.w3.org/2000/svg"
-								width="48"
-								height="48"
-								viewBox="0 0 24 24"
-								><g fill="none" fill-rule="evenodd"
-									><path
-										d="M24 0v24H0V0h24ZM12.594 23.258l-.012.002l-.071.035l-.02.004l-.014-.004l-.071-.036c-.01-.003-.019 0-.024.006l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.016-.018Zm.264-.113l-.014.002l-.184.093l-.01.01l-.003.011l.018.43l.005.012l.008.008l.201.092c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.003-.011l.018-.43l-.003-.012l-.01-.01l-.184-.092Z"
-									/><path
-										fill="currentColor"
-										d="M14.07 19.727a8.003 8.003 0 0 1-9.146-3.99a1 1 0 0 0-1.77.933c2.13 4.04 6.836 6.221 11.434 4.99c5.335-1.43 8.5-6.914 7.071-12.248c-1.43-5.335-6.913-8.5-12.247-7.071a10.003 10.003 0 0 0-7.414 9.58c-.007.903.995 1.402 1.713.919l2.673-1.801c1.008-.68.332-2.251-.854-1.986l-1.058.236a8 8 0 1 1 9.598 10.439Z"
-									/></g
-								></svg
-							>
-							<p>Replay</p>
-						</button>
-						<VideoThumbnail
-							duration={nextVid.duration}
-							videoPath={nextVid.videoPath}
-							timestamp={nextVid.timestamp}
-							videoTitle={nextVid.videoTitle}
-						/>
-					</div>
-				</div>
-			{/if}
-		</div>
-	{/if}
+	<VideoEndScreen {duration} {nextVid} {video} {autoplayNext} />
 </div>

@@ -17,9 +17,10 @@ const io = new Server(5432, {
 	},
 });
 
+const pb = new PocketBase("http://127.0.0.1:8090");
+
 io.on("connection", (socket) => {
 	console.log("------------ connection ------------");
-	const pb = new PocketBase("http://127.0.0.1:8090");
 
 	const cookies = socket.request.headers.cookie;
 	const { device_id, profile_id } = cookie.parse(cookies ?? "");
