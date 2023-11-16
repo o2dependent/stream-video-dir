@@ -137,7 +137,13 @@
 		class="grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-20 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 opacity-0 transition-opacity duration-300 cursor-default"
 		class:opacity-100={paused || isHovered}
 	>
-		<VideoProgress {durationTime} {duration} bind:currentTime bind:video />
+		<VideoProgress
+			{filepath}
+			{durationTime}
+			{duration}
+			bind:currentTime
+			bind:video
+		/>
 		<div
 			bind:this={controlsContainer}
 			class="flex flex-col w-full flex-grow h-full relative"

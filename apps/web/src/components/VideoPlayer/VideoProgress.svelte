@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { fly } from "svelte/transition";
+	import { fade, fly } from "svelte/transition";
 	import { formatTime } from "$lib/formatTime";
 	import { padNum } from "$lib/padTime";
+	import ScrubImages from "./ScrubImages.svelte";
 
+	export let filepath: string;
 	export let duration: number | undefined;
 	export let video: HTMLVideoElement;
 	export let currentTime = 0;
@@ -133,15 +135,23 @@
 			class:duration-0={isChanging}
 			aria-hidden="true"
 		/>
-		{#if isChanging || isHovered}
+		<div
+			bind:this={hoverTimestamp}
+			class:invisible={!(isChanging || isHovered)}
+			class:opacity-100={isChanging || isHovered}
+			class:opacity-0={!(isChanging || isHovered)}
+			class="absolute -top-full -translate-y-full transition-opacity flex flex-col max-w-xs w-full items-center justify-center gap-1 hover:invisible"
+			style="left: min(calc(100% - {hoverTimestamp?.clientWidth ??
+				0}px),max(calc({hoverPercent}% - {(hoverTimestamp?.clientWidth ?? 0) /
+				2}px), 0%)); transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;"
+		>
+			<ScrubImages
+				{filepath}
+				{duration}
+				currentTime={(hoverPercent / 100) * (duration ?? 1)}
+			/>
 			<p
-				in:fly={{ y: -4, duration: 150 }}
-				out:fly={{ y: 4, duration: 150 }}
-				bind:this={hoverTimestamp}
-				class="absolute -top-full -translate-y-full w-fit select-none bg-black/50 text-white px-1 py-0.5 rounded whitespace-nowrap shadow-md"
-				style="left: min(calc(100% - {hoverTimestamp?.clientWidth ??
-					0}px),max(calc({hoverPercent}% - {(hoverTimestamp?.clientWidth ?? 0) /
-					2}px), 0%));"
+				class="w-fit select-none bg-black/50 text-white px-1 py-0.5 rounded whitespace-nowrap shadow-md"
 			>
 				{durationTime?.hours > 0
 					? `${hoverTime?.hours}:`
@@ -149,7 +159,7 @@
 					? padNum(hoverTime?.minutes)
 					: hoverTime?.minutes}:{padNum(hoverTime?.seconds)}
 			</p>
-		{/if}
+		</div>
 	</div>
 	<!-- <input
 		min="0"

@@ -1,0 +1,37 @@
+<script lang="ts">
+	import {
+		SCRUB_SCREENSHOT_HEIGHT,
+		SCRUB_SCREENSHOT_WIDTH,
+		SCRUB_TIMESTAMP_PER_CHUNK,
+	} from "$lib/constants";
+
+	export let index: number;
+	export let currentTime: number;
+	export let filepath: string;
+	export let CHUNK_SIZE: number;
+
+	let img: HTMLImageElement;
+	const CHUNK_START = index * CHUNK_SIZE;
+	$: currentIndex = Math.floor(currentTime / CHUNK_SIZE);
+	$: offsetIndex =
+		currentIndex === index
+			? Math.round(
+					(Math.round(((currentTime - CHUNK_START) / CHUNK_SIZE) * 100) / 100) *
+						(SCRUB_TIMESTAMP_PER_CHUNK - 1),
+			  )
+			: null;
+</script>
+
+<img
+	bind:this={img}
+	width={SCRUB_SCREENSHOT_WIDTH}
+	height={SCRUB_SCREENSHOT_HEIGHT}
+	class="object-none h-full aspect-video select-none"
+	class:hidden={currentIndex !== index}
+	data-offsetIndex={offsetIndex}
+	style="object-position: calc(calc({offsetIndex} / {SCRUB_TIMESTAMP_PER_CHUNK -
+		1}) * 100%);"
+	loading="lazy"
+	src="/video/scrub/{filepath}-{index}.png"
+	alt=""
+/>
