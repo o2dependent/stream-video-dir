@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fly } from "svelte/transition";
 	import { formatTime } from "./../../lib/formatTime.ts";
 	import { padNum } from "./../../lib/padTime.ts";
 	import { io } from "socket.io-client";
@@ -64,7 +65,7 @@
 			filepath,
 			time: target.currentTime,
 			duration: video?.duration ?? 0,
-			log: true,
+			log: false,
 		});
 	};
 	const ended = (e: Event) => {};
@@ -105,7 +106,7 @@
 
 <div
 	bind:this={container}
-	class="video-player relative h-full w-full flex flex-col justify-center items-center"
+	class="video-player relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
 	class:cursor-none={!(paused || isHovered)}
 >
 	<KeyboardControls {video} {tempShowControls} />
@@ -131,11 +132,13 @@
 		Your browser does not support the video tag.
 	</video>
 	<VideoPlayPausePopup {paused} />
+
 	<div
 		aria-label="Video controls"
 		id="controls"
-		class="grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-20 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 opacity-0 transition-opacity duration-300 cursor-default"
+		class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-20 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
 		class:opacity-100={paused || isHovered}
+		class:translate-y-full={!(paused || isHovered)}
 	>
 		<VideoProgress
 			{filepath}
@@ -197,5 +200,20 @@
 			</div>
 		</div>
 	</div>
+	{#if nextVid && (currentTime / video?.duration) * 100 >= 99.5}
+		<div
+			in:fly={{ y: 16, duration: 300 }}
+			out:fly={{ y: -16, duration: 300 }}
+			class:-translate-y-16={paused || isHovered}
+			class:translate-y-0={!(paused || isHovered)}
+			class="absolute peer-hover:-translate-y-16 h-8 right-4 bottom-4 transition-all duration-300"
+		>
+			<a
+				href={`/directory/${nextVid.videoPath}/watch`}
+				class="rounded-md px-2 py-1 lg:text-lg bg-black/20 backdrop-blur-md text-white/80 border border-white/10 hover:border-white/25 hover:text-white transition-colors duration-300"
+				type="button">Play Next</a
+			>
+		</div>
+	{/if}
 	<VideoEndScreen {duration} {nextVid} {video} {autoplayNext} />
 </div>
