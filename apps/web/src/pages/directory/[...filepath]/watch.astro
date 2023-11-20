@@ -3,7 +3,6 @@ import Layout from "$layouts/Layout.astro";
 import VideoPlayer from "$components/VideoPlayer/VideoPlayer.svelte";
 import DirectorySlider from "$components/DirectorySlider.svelte";
 
-// get filepath param
 const { filepath } = Astro.params;
 const hostname = Astro.url.hostname;
 let startTime = 0;
@@ -28,7 +27,6 @@ const fullyWatched =
 	watchedTimestamp?.timestamp &&
 	watchedTimestamp?.timestamp === watchedTimestamp?.duration;
 startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
-console.log({ startTime });
 
 //TODO: MOVE THE BELOW CODE INTO "DirectoryList.astro" after moving the svelte file to astro
 import { BASE_VOLUME_PATH } from "$lib/constants";
@@ -53,7 +51,6 @@ let directory: {
 	updated?: string;
 	duration?: number;
 }[] = [];
-let latestVideoId: string | undefined;
 let latestVideoIdx: number | undefined;
 
 try {
@@ -98,11 +95,6 @@ try {
 	latestVideoIdx = directory?.findIndex(
 		(wt) => wt.path === Astro.params.filepath?.split("/").at(-1) + ".mp4",
 	);
-	console.log({
-		filepath: Astro.params.filepat?.split("/").at(-1) + ".mp4",
-		wtFilepath: directory?.map((wt) => wt.path),
-		latestVideoIdx,
-	});
 } catch (err) {
 	console.error(err);
 }
