@@ -117,9 +117,16 @@
 	class="video-player relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
 	class:cursor-none={!(paused || isHovered)}
 >
-	<!-- <div class="absolute top-0 left-0 w-full">
-		<h2 class="text-xl">{filepath?.split("/")?.at(-1)}</h2>
-	</div> -->
+	<div
+		class:opacity-0={!(video?.paused || isHovered)}
+		class="fullscreen-title-box absolute top-0 left-0 w-full px-2 pt-2 transition-opacity"
+	>
+		<h2
+			class="text-3xl max-w-7xl text-ellipsis whitespace-nowrap overflow-clip"
+		>
+			{filepath?.split("/")?.at(-1)}
+		</h2>
+	</div>
 	<KeyboardControls {video} {tempShowControls} />
 	<video
 		bind:this={video}
@@ -229,3 +236,12 @@
 	{/if}
 	<VideoEndScreen {duration} {nextVid} {video} {autoplayNext} />
 </div>
+
+<style lang="postcss">
+	:global(html.fullscreen .video-player) {
+		@apply h-screen;
+	}
+	:global(html:not(.fullscreen) .video-player .fullscreen-title-box) {
+		@apply hidden;
+	}
+</style>

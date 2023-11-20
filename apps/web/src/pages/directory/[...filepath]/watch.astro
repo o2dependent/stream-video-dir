@@ -131,21 +131,23 @@ try {
 			{hostname}
 		/>
 	</VideoContainer>
-	<h1 class="text-5xl">{filepath?.split("/")?.at(-1)}</h1>
-	<div class="grid grid-cols-1 pt-10 relative rounded overflow-hidden">
-		<div
-			class="px-4 text-xl font-bold h-10 absolute top-0 left-0 bg-slate-900 w-full flex items-center"
-		>
-			<a
-				href={`/directory/${
-					Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
-				}`}
+	<div class="max-w-screen-3xl w-full mx-auto px-4 flex flex-col">
+		<h1 class="text-5xl">{filepath?.split("/")?.at(-1)}</h1>
+		<div class="grid grid-cols-1 pt-10 relative rounded overflow-hidden">
+			<div
+				class="px-4 text-xl font-bold h-10 absolute top-0 left-0 bg-slate-900 w-full flex items-center"
 			>
-				<h2>
-					{Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""}
-				</h2>
-			</a>
+				<a
+					href={`/directory/${
+						Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
+					}`}
+				>
+					<h2>
+						{Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""}
+					</h2>
+				</a>
+			</div>
+			<DirectorySlider client:load {directory} {latestVideoIdx} {filepath} />
 		</div>
-		<DirectorySlider client:load {directory} {latestVideoIdx} {filepath} />
 	</div>
 </WatchLayout>

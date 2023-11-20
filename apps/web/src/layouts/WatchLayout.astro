@@ -38,9 +38,7 @@ const profile = Astro.locals.profile?.name;
 		<div class="w-full mx-auto flex flex-col gap-2">
 			<main class="flex flex-col gap-2 w-full pb-8">
 				<slot name="video-player" />
-				<div class="max-w-screen-3xl w-full mx-auto px-4 flex flex-col">
-					<slot />
-				</div>
+				<slot />
 			</main>
 		</div>
 	</body>

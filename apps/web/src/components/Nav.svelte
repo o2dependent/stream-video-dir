@@ -57,10 +57,8 @@
 
 <div id="nav-padding" class="h-12 w-full" class:hidden={$isFullscreen} />
 <div class="z-20 top-0 left-0 w-full fixed h-12 overflow-hidden">
-	<div
-		class:-translate-y-full={$isFullscreen && $windowScrollY < 8}
-		class:-translate-y-0={$isFullscreen && $windowScrollY >= 8}
-		class="w-full py-2 bg-slate-900 h-12 overflow-hidden flex items-center origin-top transition-transform duration-300 delay-200"
+	<nav
+		class="w-full py-2 bg-slate-950 h-12 overflow-hidden flex items-center origin-top duration-300"
 	>
 		<div class="max-w-screen-3xl w-full mx-auto">
 			<nav class="mx-auto flex w-full justify-between">
@@ -99,7 +97,7 @@
 				</div>
 			</nav>
 		</div>
-	</div>
+	</nav>
 </div>
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
@@ -171,6 +169,21 @@
 </div>
 
 <style lang="postcss">
+	:global(html.fullscreen nav) {
+		@apply transition-transform;
+	}
+
+	:global(html:not(.fullscreen) nav) {
+		@apply transition-none;
+	}
+
+	:global(html.fullscreen.scroll-top nav) {
+		@apply -translate-y-full;
+	}
+	:global(html.fullscreen:not(.scroll-top) nav) {
+		@apply delay-200 translate-y-0;
+	}
+
 	:global(html.fullscreen ::-webkit-scrollbar) {
 		display: none;
 	}
