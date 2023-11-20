@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { isFullscreen } from "$stores/isFullscreen";
+	import { windowScrollY } from "$stores/windowScrollY";
 	import { io } from "socket.io-client";
+	import { onMount } from "svelte";
 	export let hostname: string;
 	export let pathname: string;
 	export let profile: string | undefined;
@@ -8,8 +11,10 @@
 
 	let isModalOpen = false;
 	let isPassToDeviceModalOpen = false;
-	let deviceName = localStorage.getItem("deviceName") || "";
-	// let deviceName = "";
+	let deviceName = "";
+	onMount(() => {
+		deviceName = localStorage.getItem("deviceName") || "";
+	});
 	$: newDeviceName = deviceName;
 
 	let devices: Record<string, any> = {};
@@ -50,45 +55,54 @@
 	};
 </script>
 
-<div class="py-2 bg-purple-500/10">
-	<div class="max-w-screen-3xl w-full mx-auto">
-		<nav class="mx-auto flex w-full justify-between">
-			<div>
-				<a
-					class="px-2 block py-1 rounded bg-slate-50/10 text-white"
-					href="/directory">Home Directory</a
-				>
-			</div>
-			<div class="flex gap-2">
-				<button
-					class="px-2 py-1 rounded bg-slate-50/10 text-white"
-					type="button"
-					on:click={openPassToDeviceModal}
-				>
-					Pass to device
-				</button>
-				{#if profile}
+<div id="nav-padding" class="h-12 w-full" class:hidden={$isFullscreen} />
+<div class="z-20 top-0 left-0 w-full fixed h-12 overflow-hidden">
+	<div
+		class:-translate-y-full={$isFullscreen && $windowScrollY < 8}
+		class:-translate-y-0={$isFullscreen && $windowScrollY >= 8}
+		class="w-full py-2 bg-slate-900 h-12 overflow-hidden flex items-center origin-top transition-transform duration-300 delay-200"
+	>
+		<div class="max-w-screen-3xl w-full mx-auto">
+			<nav class="mx-auto flex w-full justify-between">
+				<div>
 					<a
 						class="px-2 block py-1 rounded bg-slate-50/10 text-white"
-						href="/profile">{profile}</a
+						href="/directory">Home Directory</a
 					>
-				{:else}
-					<a class="px-2 block py-1 rounded bg-slate-50/10 text-white" href="/"
-						>Login</a
+				</div>
+				<div class="flex gap-2">
+					<button
+						class="px-2 py-1 rounded bg-slate-50/10 text-white"
+						type="button"
+						on:click={openPassToDeviceModal}
 					>
-				{/if}
-				<button
-					class="px-2 py-1 rounded bg-slate-50/10 text-white"
-					type="button"
-					on:click={openModal}
-				>
-					Edit device name
-				</button>
-			</div>
-		</nav>
+						Pass to device
+					</button>
+					{#if profile}
+						<a
+							class="px-2 block py-1 rounded bg-slate-50/10 text-white"
+							href="/profile">{profile}</a
+						>
+					{:else}
+						<a
+							class="px-2 block py-1 rounded bg-slate-50/10 text-white"
+							href="/">Login</a
+						>
+					{/if}
+					<button
+						class="px-2 py-1 rounded bg-slate-50/10 text-white"
+						type="button"
+						on:click={openModal}
+					>
+						Edit device name
+					</button>
+				</div>
+			</nav>
+		</div>
 	</div>
 </div>
 
+<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <div
 	class:hidden={!isModalOpen}
 	class="z-50 fixed flex items-center justify-center top-0 left-0 w-full h-full bg-black/25 backdrop-blur-md transition-all"
@@ -97,6 +111,12 @@
 			isModalOpen = false;
 		}
 	}}
+	on:keydown={(e) => {
+		if (e.key === "Escape") {
+			isModalOpen = false;
+		}
+	}}
+	role="dialog"
 >
 	<div
 		class="w-full p-4 rounded border border-slate-500/50 bg-slate-800 max-w-sm flex flex-col gap-2"
@@ -149,3 +169,19 @@
 		</div>
 	</div>
 </div>
+
+<style lang="postcss">
+	:global(html.fullscreen ::-webkit-scrollbar) {
+		display: none;
+	}
+
+	/* Hide scrollbar for Firefox */
+	:global(html.fullscreen) {
+		scrollbar-width: none;
+	}
+
+	/* Hide scrollbar for IE and Edge */
+	:global(html.fullscreen body) {
+		-ms-overflow-style: none;
+	}
+</style>

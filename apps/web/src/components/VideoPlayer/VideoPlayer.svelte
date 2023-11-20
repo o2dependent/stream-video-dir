@@ -13,6 +13,8 @@
 	import KeyboardControls from "./KeyboardControls.svelte";
 	import VolumeController from "./VolumeController.svelte";
 	import { curVideoPercent } from "$stores/watch/curVideoPercent";
+	import { onMount } from "svelte";
+	import { isFullscreen, toggleFullscreen } from "$stores/isFullscreen";
 
 	export let filepath: string;
 	export let duration: number | undefined;
@@ -27,7 +29,13 @@
 		  }
 		| undefined;
 
-	let container: HTMLDivElement;
+	let container: Element;
+	onMount(() => {
+		const videoContainer = document.querySelector("#video-container");
+		if (videoContainer) {
+			container = videoContainer;
+		}
+	});
 	let video: HTMLVideoElement;
 	let controlsContainer: HTMLDivElement;
 	let isEnded = false;
@@ -48,7 +56,6 @@
 			window.localStorage.setItem("autoplay", autoplayNext.toString());
 		}
 	}
-	let isFullscreen = false;
 	let isHovered = false;
 
 	$: curTime = formatTime(currentTime);
@@ -100,17 +107,13 @@
 		}, 300);
 	};
 
-	const toggleFullscreen = () => {
+	const dblclickFullscreen = () => {
 		clearTimeout(dblClickTimeout);
-		const curFullscreen = document.fullscreenElement;
-		if (curFullscreen) document.exitFullscreen();
-		else container.requestFullscreen();
-		isFullscreen = !isFullscreen;
+		toggleFullscreen();
 	};
 </script>
 
 <div
-	bind:this={container}
 	class="video-player relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
 	class:cursor-none={!(paused || isHovered)}
 >
@@ -122,10 +125,10 @@
 		bind:this={video}
 		bind:paused
 		bind:currentTime
-		class:max-h-[90vh]={!isFullscreen}
-		class:h-full={isFullscreen}
+		class:max-h-[90vh]={!$isFullscreen}
+		class:h-full={$isFullscreen}
 		class="object-contain h-full w-full"
-		on:dblclick={toggleFullscreen}
+		on:dblclick={dblclickFullscreen}
 		on:mousemove={mousemove}
 		on:timeupdate={timeupdate}
 		on:ended={ended}
@@ -204,7 +207,7 @@
 							<PlayPauseIcon className="w-3 h-3" height={16} width={16} />
 						</div>
 					</label>
-					<FullscreenButton {container} bind:isFullscreen />
+					<FullscreenButton {container} />
 				</div>
 			</div>
 		</div>

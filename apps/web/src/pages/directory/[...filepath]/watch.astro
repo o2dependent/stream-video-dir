@@ -31,6 +31,8 @@ startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
 //TODO: MOVE THE BELOW CODE INTO "DirectoryList.astro" after moving the svelte file to astro
 import { BASE_VOLUME_PATH } from "$lib/constants";
 import fs from "fs";
+import WatchLayout from "$layouts/WatchLayout.astro";
+import VideoContainer from "$components/VideoContainer.svelte";
 const sortByPath = (a: any, b: any) => {
 	const aPath = a.path.split(" ");
 	const bPath = b.path.split(" ");
@@ -100,65 +102,50 @@ try {
 }
 ---
 
-<Layout title="Welcome to Astro.">
-	<main class="flex flex-col gap-2 w-full pb-8">
-		<div id="video-container" class="w-full relative">
-			<div
-				class="absolute top-0 left-0 h-full w-full flex flex-col items-center justify-center bg-black ring-gray-900 -z-10"
+<WatchLayout title="Welcome to Astro.">
+	<VideoContainer
+		slot="video-player"
+		transition:persist
+		transition:name="video-container"
+	>
+		<VideoPlayer
+			client:load
+			filepath={filepath ?? ""}
+			duration={latestVideoIdx !== undefined
+				? directory?.[latestVideoIdx]?.duration
+				: undefined}
+			nextVid={latestVideoIdx !== undefined
+				? {
+						videoPath: `${
+							Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
+						}/${directory?.[latestVideoIdx + 1]?.path.replace(".mp4", "")}`,
+						videoTitle: directory?.[latestVideoIdx + 1]?.path.replace(
+							".mp4",
+							"",
+						),
+						duration: directory?.[latestVideoIdx + 1]?.duration,
+						timestamp: directory?.[latestVideoIdx + 1]?.timestamp,
+				  }
+				: undefined}
+			{startTime}
+			{hostname}
+		/>
+	</VideoContainer>
+	<h1 class="text-5xl">{filepath?.split("/")?.at(-1)}</h1>
+	<div class="grid grid-cols-1 pt-10 relative rounded overflow-hidden">
+		<div
+			class="px-4 text-xl font-bold h-10 absolute top-0 left-0 bg-slate-900 w-full flex items-center"
+		>
+			<a
+				href={`/directory/${
+					Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
+				}`}
 			>
-			</div>
-			<VideoPlayer
-				slot="video-player"
-				client:load
-				filepath={filepath ?? ""}
-				duration={latestVideoIdx !== undefined
-					? directory?.[latestVideoIdx]?.duration
-					: undefined}
-				nextVid={latestVideoIdx !== undefined
-					? {
-							videoPath: `${
-								Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
-							}/${directory?.[latestVideoIdx + 1]?.path.replace(".mp4", "")}`,
-							videoTitle: directory?.[latestVideoIdx + 1]?.path.replace(
-								".mp4",
-								"",
-							),
-							duration: directory?.[latestVideoIdx + 1]?.duration,
-							timestamp: directory?.[latestVideoIdx + 1]?.timestamp,
-					  }
-					: undefined}
-				{startTime}
-				{hostname}
-			/>
+				<h2>
+					{Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""}
+				</h2>
+			</a>
 		</div>
-		<div class="">
-			<div class="max-w-screen-3xl w-full mx-auto px-4 flex flex-col">
-				<h1 class="text-5xl">{filepath?.split("/")?.at(-1)}</h1>
-				<div class="grid grid-cols-1 pt-10 relative rounded overflow-hidden">
-					<div
-						class="px-4 text-xl font-bold h-10 absolute top-0 left-0 bg-slate-900 w-full flex items-center"
-					>
-						<a
-							href={`/directory/${
-								Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
-							}`}
-						>
-							<h2>
-								{
-									Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ??
-										""
-								}
-							</h2>
-						</a>
-					</div>
-					<DirectorySlider
-						client:load
-						{directory}
-						{latestVideoIdx}
-						{filepath}
-					/>
-				</div>
-			</div>
-		</div>
-	</main>
-</Layout>
+		<DirectorySlider client:load {directory} {latestVideoIdx} {filepath} />
+	</div>
+</WatchLayout>
