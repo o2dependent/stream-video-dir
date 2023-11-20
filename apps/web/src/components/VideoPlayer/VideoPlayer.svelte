@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fly } from "svelte/transition";
-	import { formatTime } from "./../../lib/formatTime.ts";
-	import { padNum } from "./../../lib/padTime.ts";
+	import { formatTime } from "./../../lib/formatTime";
+	import { padNum } from "./../../lib/padTime";
 	import { io } from "socket.io-client";
 	import NextVideoButton from "./NextVideoButton.svelte";
 	import PlayPauseButton from "./PlayPauseButton.svelte";
@@ -12,6 +12,7 @@
 	import PlayPauseIcon from "./PlayPauseIcon.svelte";
 	import KeyboardControls from "./KeyboardControls.svelte";
 	import VolumeController from "./VolumeController.svelte";
+	import { curVideoPercent } from "$stores/watch/curVideoPercent";
 
 	export let filepath: string;
 	export let duration: number | undefined;
@@ -62,6 +63,9 @@
 			isEnded = false;
 			return;
 		}
+		curVideoPercent.set(
+			((target?.currentTime ?? 0) / (target?.duration ?? 1)) * 100,
+		);
 		socket.emit("timeupdate", {
 			filepath,
 			time: target.currentTime,

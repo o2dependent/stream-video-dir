@@ -110,41 +110,34 @@ try {
 
 <Layout title="Welcome to Astro.">
 	<main class="flex flex-col gap-2 w-full pb-8">
-		<eo-video-player
-			data-hostname={hostname}
-			data-filepath={filepath}
-			data-latest-video-idx={latestVideoIdx}
-		>
-			<div id="video-container" class="w-full relative">
-				<div
-					class="absolute top-0 left-0 h-full w-full flex flex-col items-center justify-center bg-black ring-gray-900 -z-10"
-				>
-				</div>
-				<VideoPlayer
-					client:load
-					filepath={filepath ?? ""}
-					duration={latestVideoIdx !== undefined
-						? directory?.[latestVideoIdx]?.duration
-						: undefined}
-					nextVid={latestVideoIdx !== undefined
-						? {
-								videoPath: `${
-									Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ??
-									""
-								}/${directory?.[latestVideoIdx + 1]?.path.replace(".mp4", "")}`,
-								videoTitle: directory?.[latestVideoIdx + 1]?.path.replace(
-									".mp4",
-									"",
-								),
-								duration: directory?.[latestVideoIdx + 1]?.duration,
-								timestamp: directory?.[latestVideoIdx + 1]?.timestamp,
-						  }
-						: undefined}
-					{startTime}
-					{hostname}
-				/>
+		<div id="video-container" class="w-full relative">
+			<div
+				class="absolute top-0 left-0 h-full w-full flex flex-col items-center justify-center bg-black ring-gray-900 -z-10"
+			>
 			</div>
-		</eo-video-player>
+			<VideoPlayer
+				client:load
+				filepath={filepath ?? ""}
+				duration={latestVideoIdx !== undefined
+					? directory?.[latestVideoIdx]?.duration
+					: undefined}
+				nextVid={latestVideoIdx !== undefined
+					? {
+							videoPath: `${
+								Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
+							}/${directory?.[latestVideoIdx + 1]?.path.replace(".mp4", "")}`,
+							videoTitle: directory?.[latestVideoIdx + 1]?.path.replace(
+								".mp4",
+								"",
+							),
+							duration: directory?.[latestVideoIdx + 1]?.duration,
+							timestamp: directory?.[latestVideoIdx + 1]?.timestamp,
+					  }
+					: undefined}
+				{startTime}
+				{hostname}
+			/>
+		</div>
 		<div class="">
 			<div class="max-w-screen-3xl w-full mx-auto px-4 flex flex-col">
 				<h1 class="text-5xl">{filepath?.split("/")?.at(-1)}</h1>
@@ -213,38 +206,11 @@ try {
 		<script>
 			import Swiper from "swiper";
 			import "swiper/css";
+			import { curVideoPercent } from "$stores/watch/curVideoPercent";
 
 			let currentVideoProgress: HTMLElement | undefined | null;
 			let currentVideoProgressContainer: HTMLElement | undefined | null;
-			class EOVideoPlayer extends HTMLElement {
-				constructor() {
-					super();
-					const video = this.querySelector("video");
 
-					const timeupdate = (e: Event) => {
-						if (
-							currentVideoProgress &&
-							currentVideoProgressContainer &&
-							video?.duration
-						) {
-							const percent =
-								((e.currentTarget as HTMLVideoElement).currentTime /
-									video?.duration) *
-								100;
-							currentVideoProgress.style.width = `${percent}%`;
-							if (percent >= 99.9) {
-								currentVideoProgress.classList.remove("bg-orange-500");
-								currentVideoProgress.classList.add("bg-green-500");
-							} else {
-								currentVideoProgress.classList.remove("bg-green-500");
-								currentVideoProgress.classList.add("bg-orange-500");
-							}
-						}
-					};
-					video?.addEventListener("timeupdate", timeupdate);
-				}
-			}
-			customElements.define("eo-video-player", EOVideoPlayer);
 			class EODirectoryList extends HTMLElement {
 				constructor() {
 					super();
@@ -283,6 +249,22 @@ try {
 					currentVideoProgressContainer = currentVideo?.querySelector(
 						".directory-list-item-progress-container",
 					);
+					curVideoPercent.listen((percent) => {
+						if (
+							currentVideoProgress &&
+							currentVideoProgressContainer &&
+							percent
+						) {
+							currentVideoProgress.style.width = `${percent}%`;
+							if (percent >= 99.9) {
+								currentVideoProgress.classList.remove("bg-orange-500");
+								currentVideoProgress.classList.add("bg-green-500");
+							} else {
+								currentVideoProgress.classList.remove("bg-green-500");
+								currentVideoProgress.classList.add("bg-orange-500");
+							}
+						}
+					});
 
 					container?.scrollTo({
 						top: (currentVideo?.offsetTop ?? 0) - 42,
