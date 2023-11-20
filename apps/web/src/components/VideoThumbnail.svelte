@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { curVideoPercent } from "$stores/watch/curVideoPercent";
 	import ThumbnailImage from "./ThumbnailImage.svelte";
 
 	export let videoPath: string;
@@ -8,15 +9,9 @@
 	export let timestamp: number | undefined;
 	export let isCurrentVideo: boolean = false;
 
-	$: itemPercent = ((timestamp ?? 0) / (duration ?? 1)) * 100;
-	let isHovering = false;
-
-	const mouseenter = () => {
-		isHovering = true;
-	};
-	const mouseleave = () => {
-		isHovering = false;
-	};
+	$: itemPercent = isCurrentVideo
+		? $curVideoPercent
+		: ((timestamp ?? 0) / (duration ?? 1)) * 100;
 </script>
 
 <a

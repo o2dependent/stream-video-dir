@@ -1,6 +1,7 @@
 ---
 import Layout from "$layouts/Layout.astro";
 import VideoPlayer from "$components/VideoPlayer/VideoPlayer.svelte";
+import DirectorySlider from "$components/DirectorySlider.svelte";
 
 // get filepath param
 const { filepath } = Astro.params;
@@ -32,7 +33,6 @@ console.log({ startTime });
 //TODO: MOVE THE BELOW CODE INTO "DirectoryList.astro" after moving the svelte file to astro
 import { BASE_VOLUME_PATH } from "$lib/constants";
 import fs from "fs";
-import VideoThumbnail from "$components/VideoThumbnail.svelte";
 const sortByPath = (a: any, b: any) => {
 	const aPath = a.path.split(" ");
 	const bPath = b.path.split(" ");
@@ -116,6 +116,7 @@ try {
 			>
 			</div>
 			<VideoPlayer
+				slot="video-player"
 				client:load
 				filepath={filepath ?? ""}
 				duration={latestVideoIdx !== undefined
@@ -158,120 +159,14 @@ try {
 							</h2>
 						</a>
 					</div>
-					<eo-directory-list data-latest-video-idx={latestVideoIdx}>
-						<div id="directory-list" class="swiper py-1 w-full">
-							<div class="swiper-wrapper">
-								{
-									directory?.map(
-										({ path, timestamp, updated, duration, id }, idx) => {
-											//TODO: add directory in list later
-											if (!path.includes(".mp4")) return;
-
-											const isCurrentVideo = idx === latestVideoIdx;
-											return (
-												<div class="swiper-slide">
-													<VideoThumbnail
-														client:load
-														videoTitle={path.replace(".mp4", "")}
-														videoPath={`${
-															Astro.params.filepath
-																?.split("/")
-																?.slice(0, -1)
-																?.join("/") ?? ""
-														}/${path.replace(".mp4", "")}`}
-														{isCurrentVideo}
-														{duration}
-														{timestamp}
-														{idx}
-													/>
-												</div>
-											);
-										},
-									)
-								}
-							</div>
-
-							<!-- If we need navigation buttons -->
-							<!-- <div class="swiper-button-prev"></div>
-							<div class="swiper-button-next"></div> -->
-
-							<!-- If we need scrollbar -->
-							<div class="swiper-scrollbar"></div>
-						</div>
-					</eo-directory-list>
+					<DirectorySlider
+						client:load
+						{directory}
+						{latestVideoIdx}
+						{filepath}
+					/>
 				</div>
 			</div>
 		</div>
-
-		<script>
-			import Swiper from "swiper";
-			import "swiper/css";
-			import { curVideoPercent } from "$stores/watch/curVideoPercent";
-
-			let currentVideoProgress: HTMLElement | undefined | null;
-			let currentVideoProgressContainer: HTMLElement | undefined | null;
-
-			class EODirectoryList extends HTMLElement {
-				constructor() {
-					super();
-					const currentVideo: HTMLAnchorElement | null = this.querySelector(
-						`#directory-list #directory-list-item-${this.dataset.latestVideoIdx}`,
-					);
-					const container = this.querySelector("#directory-list");
-					if (container) {
-						const swiper = new Swiper("#directory-list", {
-							slidesPerView: 3,
-							spaceBetween: 4,
-							freeMode: {
-								enabled: true,
-								momentumRatio: 2,
-								sticky: false,
-								momentum: true,
-							},
-							breakpoints: {
-								768: {
-									slidesPerView: 3,
-								},
-								1024: {
-									slidesPerView: 5,
-								},
-							},
-						});
-						if (typeof this.dataset.latestVideoIdx !== "undefined")
-							swiper.slideTo(
-								Math.max(0, parseInt(this.dataset.latestVideoIdx) - 1),
-							);
-					}
-
-					currentVideoProgress = currentVideo?.querySelector(
-						".directory-list-item-progress",
-					);
-					currentVideoProgressContainer = currentVideo?.querySelector(
-						".directory-list-item-progress-container",
-					);
-					curVideoPercent.listen((percent) => {
-						if (
-							currentVideoProgress &&
-							currentVideoProgressContainer &&
-							percent
-						) {
-							currentVideoProgress.style.width = `${percent}%`;
-							if (percent >= 99.9) {
-								currentVideoProgress.classList.remove("bg-orange-500");
-								currentVideoProgress.classList.add("bg-green-500");
-							} else {
-								currentVideoProgress.classList.remove("bg-green-500");
-								currentVideoProgress.classList.add("bg-orange-500");
-							}
-						}
-					});
-
-					container?.scrollTo({
-						top: (currentVideo?.offsetTop ?? 0) - 42,
-					});
-				}
-			}
-			customElements.define("eo-directory-list", EODirectoryList);
-		</script>
 	</main>
 </Layout>
