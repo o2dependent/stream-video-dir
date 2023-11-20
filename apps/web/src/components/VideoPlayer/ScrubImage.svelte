@@ -15,9 +15,9 @@
 	$: currentIndex = Math.floor(currentTime / CHUNK_SIZE);
 	$: offsetIndex =
 		currentIndex === index
-			? Math.round(
-					(Math.round(((currentTime - CHUNK_START) / CHUNK_SIZE) * 100) / 100) *
-						(SCRUB_TIMESTAMP_PER_CHUNK - 1),
+			? Math.floor(
+					(Math.floor(((currentTime - CHUNK_START) / CHUNK_SIZE) * 100) / 100) *
+						SCRUB_TIMESTAMP_PER_CHUNK,
 			  )
 			: null;
 </script>

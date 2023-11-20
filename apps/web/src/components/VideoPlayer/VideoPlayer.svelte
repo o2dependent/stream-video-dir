@@ -11,6 +11,7 @@
 	import VideoEndScreen from "./VideoEndScreen.svelte";
 	import PlayPauseIcon from "./PlayPauseIcon.svelte";
 	import KeyboardControls from "./KeyboardControls.svelte";
+	import VolumeController from "./VolumeController.svelte";
 
 	export let filepath: string;
 	export let duration: number | undefined;
@@ -109,6 +110,9 @@
 	class="video-player relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
 	class:cursor-none={!(paused || isHovered)}
 >
+	<!-- <div class="absolute top-0 left-0 w-full">
+		<h2 class="text-xl">{filepath?.split("/")?.at(-1)}</h2>
+	</div> -->
 	<KeyboardControls {video} {tempShowControls} />
 	<video
 		bind:this={video}
@@ -137,8 +141,8 @@
 		aria-label="Video controls"
 		id="controls"
 		class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-20 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
-		class:opacity-100={paused || isHovered}
-		class:translate-y-full={!(paused || isHovered)}
+		class:opacity-100={video?.paused || isHovered}
+		class:translate-y-full={!(video?.paused || isHovered)}
 	>
 		<VideoProgress
 			{filepath}
@@ -161,6 +165,7 @@
 						timestamp={nextVid?.timestamp}
 						videoTitle={nextVid?.videoTitle ?? "No title found"}
 					/>
+					<VolumeController {video} />
 
 					<p class="flex justify-center items-center h-full">
 						{durationTime?.hours > 0 ? `${curTime?.hours}:` : ""}
@@ -204,8 +209,8 @@
 		<div
 			in:fly={{ y: 16, duration: 300 }}
 			out:fly={{ y: -16, duration: 300 }}
-			class:-translate-y-16={paused || isHovered}
-			class:translate-y-0={!(paused || isHovered)}
+			class:-translate-y-16={video?.paused || isHovered}
+			class:translate-y-0={!(video?.paused || isHovered)}
 			class="absolute peer-hover:-translate-y-16 h-8 right-4 bottom-4 transition-all duration-300"
 		>
 			<a

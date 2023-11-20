@@ -54,26 +54,44 @@ export const GET: APIRoute = async ({
 			(_, i) => CHUNK_START + (i / SCRUB_TIMESTAMP_PER_CHUNK) * CHUNK_SIZE,
 		);
 
-		await new Promise((resolve, reject) =>
-			video
-				.screenshots({
-					timestamps,
-					folder: TMP_FOLDER,
-					filename: `scrub-C${index}-I%i.png`,
-					size: `${SCRUB_SCREENSHOT_WIDTH}x${SCRUB_SCREENSHOT_HEIGHT}`,
-				})
-				.on("end", (end) => {
-					console.log({ end });
-					resolve(undefined);
-				})
-				.on("err", (err) => reject(err)),
+		await new Promise(
+			(resolve, reject) =>
+				video
+					.setStartTime(CHUNK_START)
+					.withDuration(CHUNK_SIZE)
+					.videoFilter(
+						`fps=1/${
+							CHUNK_SIZE / SCRUB_TIMESTAMP_PER_CHUNK
+						},scale=${SCRUB_SCREENSHOT_WIDTH}:${SCRUB_SCREENSHOT_HEIGHT},tile=${SCRUB_TIMESTAMP_PER_CHUNK}x1`,
+					)
+					.output(scrubChunkImagePath)
+					.on("end", (end) => {
+						console.log({ CHUNK_START, CHUNK_SIZE, SCRUB_TIMESTAMP_PER_CHUNK });
+						resolve(undefined);
+					})
+					.on("err", (err) => reject(err))
+					.run(),
+			// video
+			// 	.screenshots({
+			// 		timestamps,
+			// 		folder: TMP_FOLDER,
+			// 		filename: `scrub-C${index}-I%i.png`,
+			// 		size: `${SCRUB_SCREENSHOT_WIDTH}x${SCRUB_SCREENSHOT_HEIGHT}`,
+
+			// 	})
+			// 	.videoFilter('tile=30x1')
+			// 	.on("end", (end) => {
+			// 		console.log({ end });
+			// 		resolve(undefined);
+			// 	})
+			// 	.on("err", (err) => reject(err)),
 		);
 		// stitch screenshots together horizontally
-		const imagePaths = timestamps.map(
+		const imagePaths = timestamps?.map?.(
 			(_, i) => `${TMP_FOLDER}/scrub-C${index}-I${i + 1}.png`,
 		);
 		console.log({ imagePaths });
-		await stitchImagesHorizontally(imagePaths, scrubChunkImagePath);
+		// await stitchImagesHorizontally(imagePaths, scrubChunkImagePath);
 		// delete screenshots
 		// for (const imagePath of imagePaths) {
 		// 	fs.rm(imagePath, () => {});
