@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { navigate } from "astro:transitions/client";
 	import { fade } from "svelte/transition";
 	import VideoThumbnail from "$components/VideoThumbnail.svelte";
 
@@ -40,7 +41,7 @@
 			}, 1000);
 			autoplayTimeout = setTimeout(() => {
 				// navigate to next video
-				window.location.href = `/directory/${nextVid?.videoPath}/watch`;
+				navigate(`/directory/${nextVid?.videoPath}/watch`);
 			}, 5000);
 		} else if (!videoEnded || autoplayCancelled || !autoplayNext) {
 			clearTimeout(autoplayTimeout);
