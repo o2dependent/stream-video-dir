@@ -29,11 +29,11 @@
 		  }
 		| undefined;
 
-	let container: Element;
+	let container: HTMLElement;
 	onMount(() => {
 		const videoContainer = document.querySelector("#video-container");
 		if (videoContainer) {
-			container = videoContainer;
+			container = videoContainer as HTMLElement;
 		}
 	});
 	let video: HTMLVideoElement;
@@ -117,25 +117,12 @@
 	class="video-player relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
 	class:cursor-none={!(paused || isHovered)}
 >
-	<div
-		class:opacity-0={!(video?.paused || isHovered)}
-		class:-translate-y-full={!(video?.paused || isHovered)}
-		class="fullscreen-title-box absolute top-0 left-0 w-full px-2 pt-2 bg-gradient-to-b from-black via-black/25 to-black/0 transition-all duration-300"
-	>
-		<h2
-			class="text-3xl max-w-7xl text-ellipsis whitespace-nowrap overflow-clip"
-		>
-			{filepath?.split("/")?.at(-1)}
-		</h2>
-	</div>
 	<KeyboardControls {video} {tempShowControls} />
 	<video
 		bind:this={video}
 		bind:paused
 		bind:currentTime
-		class:max-h-[90vh]={!$isFullscreen}
-		class:h-full={$isFullscreen}
-		class="object-contain h-full w-full"
+		class="object-contain h-screen w-full"
 		on:dblclick={dblclickFullscreen}
 		on:mousemove={mousemove}
 		on:timeupdate={timeupdate}
@@ -171,15 +158,9 @@
 			class="flex flex-col w-full flex-grow h-full relative"
 		>
 			<div class="flex justify-betweens h-full w-full">
-				<div class="h-full w-full flex gap-2">
-					<PlayPauseButton {video} />
-					<NextVideoButton
-						containEl={controlsContainer}
-						duration={nextVid?.duration}
-						videoPath={nextVid?.videoPath}
-						timestamp={nextVid?.timestamp}
-						videoTitle={nextVid?.videoTitle ?? "No title found"}
-					/>
+				<div class="h-full w-full flex gap-2 items-center">
+					<PlayPauseButton {video} container={controlsContainer} />
+
 					<VolumeController {video} />
 
 					<p class="flex justify-center items-center h-full">
@@ -195,10 +176,20 @@
 							: durationTime?.minutes}:
 						{padNum(durationTime?.seconds ?? 0)}
 					</p>
+					<p class="text-xl font-bold">
+						{filepath?.split("/")?.at(-1)}
+					</p>
 				</div>
 				<div class="w-full flex justify-end gap-2">
+					<NextVideoButton
+						containEl={controlsContainer}
+						duration={nextVid?.duration}
+						videoPath={nextVid?.videoPath}
+						timestamp={nextVid?.timestamp}
+						videoTitle={nextVid?.videoTitle ?? "No title found"}
+					/>
 					<label
-						class="flex h-full items-center justify-center relative w-6 cursor-pointer"
+						class="flex h-full items-center justify-center relative w-8 cursor-pointer"
 						class:paused={autoplayNext}
 					>
 						<input
@@ -210,12 +201,12 @@
 							class="h-3 w-full absolute top-1/2 left-0 -translate-y-1/2 rounded-full bg-slate-700 peer-checked:bg-slate-600 transition-all"
 						/>
 						<div
-							class="absolute top-1/2 -translate-x-1/2 peer-checked:left-full left-0 w-4 h-4 rounded-full peer-checked:text-black text-black bg-white transition-all duration-150 ease-in-out transform -translate-y-1/2 flex items-center justify-center"
+							class="absolute top-1/2 -translate-x-1/2 peer-checked:left-3/4 left-1/4 w-4 h-4 rounded-full peer-checked:text-black text-black bg-white transition-all duration-150 ease-in-out transform -translate-y-1/2 flex items-center justify-center"
 						>
 							<PlayPauseIcon className="w-3 h-3" height={16} width={16} />
 						</div>
 					</label>
-					<FullscreenButton {container} />
+					<FullscreenButton container={controlsContainer} />
 				</div>
 			</div>
 		</div>

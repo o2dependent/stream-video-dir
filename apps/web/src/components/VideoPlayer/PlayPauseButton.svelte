@@ -3,6 +3,7 @@
 	import PlayPauseIcon from "./PlayPauseIcon.svelte";
 
 	export let video: HTMLVideoElement;
+	export let container: HTMLElement;
 	export let className: string = "";
 	export let width: number = 24;
 	export let height: number = 24;
@@ -11,7 +12,8 @@
 <Tooltip
 	tip={video?.paused ? "Play" : "Pause"}
 	className="aspect-square h-full"
-	pos="top left"
+	pos="top center"
+	containEl={container}
 >
 	<button
 		data-tip="Play/Pause"

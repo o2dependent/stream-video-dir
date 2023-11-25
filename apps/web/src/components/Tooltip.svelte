@@ -31,14 +31,6 @@
 			} else {
 				distance = -(tooltipWidth / 2);
 			}
-			console.log({
-				rect,
-				containRect,
-				startDistance,
-				endDistance,
-				tooltipWidth,
-				distance,
-			});
 		}
 	}
 
@@ -75,21 +67,25 @@
 	class="relative {className}"
 	role="group"
 >
-	{#if hovering}
-		<div
-			bind:this={tooltipEl}
-			class="tooltip absolute w-fit select-none overflow-hidden rounded whitespace-nowrap {pos}"
-			{style}
-			in:fly={{ duration: 150, y: 8, opacity: 0 }}
-			out:fly={{ duration: 150, y: 8, opacity: 0 }}
-		>
-			<slot name="tip">
-				<p class="bg-black/50 shadow-md text-white px-1 py-0.5">
-					{tip}
-				</p>
-			</slot>
-		</div>
-	{/if}
+	{#key tip}
+		{#if hovering}
+			<div
+				bind:this={tooltipEl}
+				class="tooltip absolute w-fit select-none overflow-hidden rounded whitespace-nowrap {pos}"
+				{style}
+				in:fly={{ duration: 150, y: 8, opacity: 0 }}
+				out:fly={{ duration: 150, y: 8, opacity: 0 }}
+			>
+				<slot name="tip">
+					<p
+						class="bg-black/50 ring-1 ring-white shadow-md text-white px-1 py-0.5"
+					>
+						{tip}
+					</p>
+				</slot>
+			</div>
+		{/if}
+	{/key}
 	<slot />
 </div>
 

@@ -2,13 +2,14 @@
 	import Tooltip from "$components/Tooltip.svelte";
 	import { isFullscreen, toggleFullscreen } from "$stores/isFullscreen";
 
-	export let container: Element;
+	export let container: HTMLElement;
 </script>
 
 <Tooltip
 	className="aspect-square"
 	tip="{$isFullscreen ? 'Exit ' : ''}Fullscreen"
-	pos="top right"
+	pos="top center"
+	containEl={container}
 >
 	<button
 		id="fullscreen"
