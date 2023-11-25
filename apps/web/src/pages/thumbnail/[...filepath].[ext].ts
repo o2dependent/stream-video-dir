@@ -1,8 +1,7 @@
 import type { APIRoute } from "astro";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
-
-export const BASE_VOLUME_PATH = "/Volumes/Extreme SSD/One Pace";
+import { BASE_VOLUME_PATH } from "$lib/constants";
 
 export const GET: APIRoute = async ({
 	request,

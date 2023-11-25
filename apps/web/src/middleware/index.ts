@@ -34,7 +34,7 @@ const pbInit: MiddlewareResponseHandler = async (
 	cookies.set("pb_auth", pbcookie ?? "", {
 		httpOnly: true,
 		secure: true,
-		sameSite: "strict",
+		sameSite: "lax",
 	});
 
 	return response;

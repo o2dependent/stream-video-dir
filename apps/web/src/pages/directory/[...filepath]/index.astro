@@ -36,7 +36,6 @@ try {
 		`${BASE_VOLUME_PATH}${filepath ? "/" + filepath : ""}`,
 	);
 	let newDirectory = dir?.filter((file) => !file.startsWith("."));
-	console.log({ newDirectory: newDirectory.map((f) => `${filepath}/${f}`) });
 	const dirFilter = newDirectory
 		.map((filename) =>
 			pb.filter("(filepath = {:path} && profile = {:profileId} )", {
@@ -69,7 +68,6 @@ try {
 			};
 		})
 		.sort(sortByPath);
-	console.log({ watchedTimestamps, dirFilter });
 } catch (err) {
 	console.error(err);
 }

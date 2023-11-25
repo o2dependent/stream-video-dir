@@ -114,7 +114,8 @@ try {
 			duration={latestVideoIdx !== undefined
 				? directory?.[latestVideoIdx]?.duration
 				: undefined}
-			nextVid={latestVideoIdx !== undefined
+			nextVid={latestVideoIdx !== undefined &&
+			latestVideoIdx + 1 < directory?.length
 				? {
 						videoPath: `${
 							Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""

@@ -119,7 +119,8 @@
 >
 	<div
 		class:opacity-0={!(video?.paused || isHovered)}
-		class="fullscreen-title-box absolute top-0 left-0 w-full px-2 pt-2 transition-opacity"
+		class:-translate-y-full={!(video?.paused || isHovered)}
+		class="fullscreen-title-box absolute top-0 left-0 w-full px-2 pt-2 bg-gradient-to-b from-black via-black/25 to-black/0 transition-all duration-300"
 	>
 		<h2
 			class="text-3xl max-w-7xl text-ellipsis whitespace-nowrap overflow-clip"

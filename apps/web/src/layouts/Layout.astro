@@ -1,5 +1,7 @@
 ---
 import Nav from "$components/Nav.svelte";
+import FullscreenListener from "$components/listeners/FullscreenListener.svelte";
+import WindowScrollYListener from "$components/listeners/WindowScrollYListener.svelte";
 import { ViewTransitions } from "astro:transitions";
 interface Props {
 	title: string;
@@ -23,7 +25,16 @@ const profile = Astro.locals.profile?.name;
 		<ViewTransitions />
 	</head>
 	<body class="bg-zinc-950 text-slate-50">
-		<Nav client:only="svelte" {hostname} {pathname} {profile} />
+		<FullscreenListener client:load />
+		<WindowScrollYListener client:load />
+		<Nav
+			transition:persist
+			transition:name="watch-nav"
+			client:load
+			{hostname}
+			{pathname}
+			{profile}
+		/>
 		<div class="w-full mx-auto flex flex-col gap-2">
 			<slot />
 		</div>

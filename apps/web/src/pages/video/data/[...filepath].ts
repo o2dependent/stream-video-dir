@@ -1,7 +1,6 @@
+import { BASE_VOLUME_PATH } from "$lib/constants";
 import type { APIRoute } from "astro";
 import fs from "fs";
-
-export const BASE_VOLUME_PATH = "/Volumes/Extreme SSD/One Pace";
 
 export const GET: APIRoute = async ({ request, params }) => {
 	let filepath = params?.filepath ?? "";
