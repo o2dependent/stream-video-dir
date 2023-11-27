@@ -57,20 +57,22 @@
 
 <div id="nav-padding" class="h-12 w-full" class:hidden={$isFullscreen} />
 <div class="z-20 top-0 left-0 w-full fixed h-12 overflow-hidden">
-	<nav
-		class="w-full py-2 bg-slate-950 h-12 overflow-hidden flex items-center origin-top duration-300"
+	<div
+		class="w-full bg-slate-950 h-12 overflow-hidden flex items-center origin-top duration-300"
 	>
-		<div class="max-w-screen-3xl w-full mx-auto">
-			<nav class="mx-auto flex w-full justify-between">
+		<div class="container h-full w-full mx-auto">
+			<nav class="mx-auto flex w-full h-full justify-between">
 				<div>
 					<a
-						class="px-2 block py-1 rounded bg-slate-50/10 text-white"
-						href="/directory">Home Directory</a
+						class="px-2 h-full grid place-items-center text-white bg-white/0 hover:bg-white/10 transition-opacity"
+						href="/series"
 					>
+						<p>Series</p>
+					</a>
 				</div>
 				<div class="flex gap-2">
 					<button
-						class="px-2 py-1 rounded bg-slate-50/10 text-white"
+						class="px-2 h-full grid place-items-center text-white bg-white/0 hover:bg-white/10 transition-opacity"
 						type="button"
 						on:click={openPassToDeviceModal}
 					>
@@ -78,17 +80,17 @@
 					</button>
 					{#if profile}
 						<a
-							class="px-2 block py-1 rounded bg-slate-50/10 text-white"
+							class="px-2 h-full grid place-items-center text-white bg-white/0 hover:bg-white/10 transition-opacity"
 							href="/profile">{profile}</a
 						>
 					{:else}
 						<a
-							class="px-2 block py-1 rounded bg-slate-50/10 text-white"
+							class="px-2 h-full grid place-items-center text-white bg-white/0 hover:bg-white/10 transition-opacity"
 							href="/">Login</a
 						>
 					{/if}
 					<button
-						class="px-2 py-1 rounded bg-slate-50/10 text-white"
+						class="px-2 h-full grid place-items-center text-white bg-white/0 hover:bg-white/10 transition-opacity"
 						type="button"
 						on:click={openModal}
 					>
@@ -97,7 +99,7 @@
 				</div>
 			</nav>
 		</div>
-	</nav>
+	</div>
 </div>
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->

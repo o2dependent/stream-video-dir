@@ -1,0 +1,165 @@
+---
+import type { RecordModel } from "pocketbase";
+import { existsSync } from "node:fs";
+import { BASE_VOLUME_PATH } from "$lib/constants";
+const list = await Astro.locals.pb.collection("episodes").getFullList({
+	sort: "-created",
+	expand: "season,series",
+});
+
+// for (const { filename, gdrive_file_id } of gdriveFoldersContents) {
+// 	const splitFilename = filename.split("/");
+// 	let series: string | undefined,
+// 		season: string | undefined,
+// 		episode: string | undefined;
+// 	if (splitFilename.length === 3) {
+// 		[series, season, episode] = splitFilename;
+// 	} else if (splitFilename.length === 2) {
+// 		[series, episode] = splitFilename;
+// 	} else {
+// 		[series] = splitFilename;
+// 	}
+// 	console.log({
+// 		series,
+// 		season,
+// 		episode,
+// 	});
+// 	try {
+// 		// if series is not undefined
+// 		if (!series) throw new Error("Series is undefined");
+// 		let seriesRecord: RecordModel;
+// 		try {
+// 			// check if series exists
+// 			seriesRecord = await Astro.locals.pb
+// 				.collection("series")
+// 				.getFirstListItem(`name = "${series}"`);
+// 			if (!seriesRecord) throw new Error(`Series ${series} not found`);
+// 		} catch (error) {
+// 			// if not create series
+// 			seriesRecord = await Astro.locals.pb.collection("series").create({
+// 				name: series,
+// 				pathname: series,
+// 			});
+// 		}
+
+// 		// if season is not undefined
+// 		let seasonRecord: RecordModel | undefined;
+// 		if (season) {
+// 			try {
+// 				// check if season exists
+// 				seasonRecord = await Astro.locals.pb
+// 					.collection("seasons")
+// 					.getFirstListItem(
+// 						`name = "${season}" && series = "${seriesRecord.id}"`,
+// 					);
+// 				if (!seasonRecord) throw new Error(`Season ${season} not found`);
+// 			} catch (error) {
+// 				// if not create season
+// 				seasonRecord = await Astro.locals.pb.collection("seasons").create({
+// 					name: season,
+// 					pathname: season,
+// 					series: seriesRecord.id,
+// 				});
+// 			}
+// 		}
+
+// 		// if episode is not undefined
+// 		if (!episode) throw new Error("Episode is undefined");
+// 		let episodeRecord: RecordModel;
+// 		try {
+// 			// check if episode exists
+// 			episodeRecord = await Astro.locals.pb
+// 				.collection("episodes")
+// 				.getFirstListItem(
+// 					`name = "${episode}" && series = "${seriesRecord.id}"`,
+// 				);
+// 			if (!episodeRecord) throw new Error(`Episode ${episode} not found`);
+// 		} catch (error) {
+// 			// if not create episode
+// 			const episode_index = parseFloat(episode.split(" ")[1]);
+// 			episodeRecord = await Astro.locals.pb.collection("episodes").create({
+// 				name: episode.replace(".mp4", ""),
+// 				pathname: episode,
+// 				series: seriesRecord.id,
+// 				season: seasonRecord?.id ?? undefined,
+// 				gdrive_file_id,
+// 				episode_index,
+// 			});
+// 		}
+
+// 		// check if episode has gdrive_file_id and if not add it
+// 		if (!episodeRecord?.episode_index) {
+// 			const episode_index = parseFloat(episodeRecord.name.split(" ")[1]);
+// 			if (isNaN(episode_index)) throw new Error(`Episode index not found`);
+// 			await Astro.locals.pb
+// 				.collection("episodes")
+// 				.update(episodeRecord.id, { episode_index });
+// 		}
+// 	} catch (error: any) {
+// 		console.log(`ERROR(${filename}): ${error?.message}`);
+// 	}
+// }
+
+// await Promise.all(
+// 	list?.map(({ filepath, id }) => {
+// 		const splitFilepath = filepath.split("/");
+// 		const season = splitFilepath?.[1] ?? "";
+// 		if (season) {
+// 			const splitSeason = (splitFilepath[1] as string).split(" ");
+// 			if (splitSeason[1].at(-1) !== ":") return;
+// 			splitSeason[1] = splitSeason[1].substring(0, splitSeason[1].length - 1);
+// 			splitFilepath[1] = splitSeason.join(" ");
+// 		}
+// 		filepath = splitFilepath.join("/");
+// 		return Astro.locals.pb
+// 			.collection("watched_timestamps")
+// 			.update(id, { filepath });
+// 	}),
+// );
+console.log({ expand: list[0] });
+for (const episode of list) {
+	const series_pathname = episode?.expand?.series?.pathname ?? null;
+	const season_pathname = episode?.expand?.season?.pathname ?? null;
+	const episode_pathname = episode?.pathname ?? null;
+	const pathname = `${series_pathname}/${season_pathname}/${episode_pathname}`;
+	const isDownloaded = existsSync(`${BASE_VOLUME_PATH}/${pathname}`);
+	if (isDownloaded !== episode.downloaded) {
+		await Astro.locals.pb
+			.collection("episodes")
+			.update(episode.id, { downloaded: isDownloaded });
+	}
+}
+// await Promise.all(
+// 	list?.map(({ id }) => {
+// 		return Astro.locals.pb.collection("episodes").delete(id);
+// 	}),
+// );
+---
+
+<div class="bg-slate-950 text-slate-50">
+	<div
+		class="grid"
+		style={`grid-template-columns: repeat(${
+			Object.keys(list[0]).length
+		}, max-content)`}
+	>
+		{
+			Object.keys(list[0]).map((key) => (
+				<p class="text-bold whitespace-nowrap overflow-ellipsis overflow-hidden w-full px-2 bg-orange-500/10">
+					{key}
+				</p>
+			))
+		}
+		{
+			list?.map((item, idx) =>
+				Object.keys(item).map((key) => (
+					<p
+						class={`whitespace-nowrap overflow-ellipsis overflow-hidden w-full px-2 bg-${
+							idx % 2 === 0 ? "purple" : "blue"
+						}-500/10`}
+					>{`${item[key]}`}</p>
+				)),
+			)
+		}
+	</div>
+</div>

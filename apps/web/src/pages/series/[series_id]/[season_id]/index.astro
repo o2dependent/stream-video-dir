@@ -1,0 +1,81 @@
+---
+import Layout from "$layouts/Layout.astro";
+import type { RecordModel } from "pocketbase";
+
+const { series_id, season_id } = Astro.params;
+if (!series_id) {
+	return Astro.redirect("/series");
+}
+
+let series: RecordModel | null = null;
+let seasons: RecordModel[] = [];
+let episodes: RecordModel[] | null = null;
+let error: string | null = null;
+
+try {
+	series = await Astro.locals.pb
+		.collection("series")
+		.getFirstListItem(`id = "${series_id}"`);
+	if (!series) {
+		return Astro.redirect("/series");
+	}
+	seasons = await Astro.locals.pb.collection("seasons").getFullList({
+		filter: `series = "${series_id}"`,
+		sort: "+season_index",
+	});
+	if (!seasons.length) {
+		return Astro.redirect(`/series/${series_id}`);
+	}
+	episodes = await Astro.locals.pb.collection("episodes").getFullList({
+		filter: `season = "${season_id}"`,
+		sort: "+episode_index",
+	});
+} catch (error) {
+	Astro.redirect("/series");
+}
+---
+
+<Layout title="Welcome to Astro.">
+	<div
+		class="flex-grow h-full w-full flex flex-col gap-2"
+		transition:animate="none"
+	>
+		<h1 class="text-4xl font-bold">
+			{series?.name}
+		</h1>
+		<div class="grid md:grid-cols-[300px,1fr]">
+			<div
+				class="flex flex-col overflow-y-auto overflow-x-hidden"
+				transition:persist
+			>
+				{
+					seasons?.map(({ id, name }) => (
+						<a
+							href={`/series/${series_id}/${id}`}
+							class="px-4 py-2 bg-neutral-700/0 hover:bg-neutral-700/5 opacity-90 hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75"
+						>
+							<h3 class="text-lg font-semibold">{name}</h3>
+						</a>
+					))
+				}
+			</div>
+			<div
+				class="flex flex-col h-full overflow-y-auto w-full bg-black/50"
+				transition:animate="none"
+			>
+				{
+					episodes?.map(({ id, name, downloaded }) => (
+						<a
+							href={`/series/${series_id}/${season_id}/${id}`}
+							class={`p-4 bg-neutral-700/0 hover:bg-neutral-700/5 ${
+								downloaded ? "opacity-80" : "opacity-50"
+							} hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75`}
+						>
+							<h3 class="text-lg font-semibold">{name}</h3>
+						</a>
+					))
+				}
+			</div>
+		</div>
+	</div>
+</Layout>

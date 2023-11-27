@@ -1,0 +1,27 @@
+---
+import Layout from "$layouts/Layout.astro";
+import type { RecordModel } from "pocketbase";
+
+let series: RecordModel[] = [];
+let error: string | null = null;
+try {
+	series = await Astro.locals.pb.collection("series").getFullList();
+} catch (error) {
+	error = "Something went wrong while loading all series.";
+}
+---
+
+<Layout title="Welcome to Astro.">
+	<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+		{
+			series?.map(({ id, name }) => (
+				<a
+					href={`/series/${id}`}
+					class="p-4 border border-gray-200 rounded-md shadow-sm hover:shadow-md"
+				>
+					<h3 class="text-lg font-semibold">{name}</h3>
+				</a>
+			))
+		}
+	</div>
+</Layout>

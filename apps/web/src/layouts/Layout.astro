@@ -24,7 +24,7 @@ const profile = Astro.locals.profile?.name;
 		<title>{title}</title>
 		<ViewTransitions />
 	</head>
-	<body class="bg-zinc-950 text-slate-50">
+	<body class="bg-zinc-950 text-slate-50 flex flex-col">
 		<FullscreenListener client:load />
 		<WindowScrollYListener client:load />
 		<Nav
@@ -35,8 +35,8 @@ const profile = Astro.locals.profile?.name;
 			{pathname}
 			{profile}
 		/>
-		<div class="w-full mx-auto flex flex-col gap-2">
+		<main class="w-full h-full container mx-auto flex flex-col">
 			<slot />
-		</div>
+		</main>
 	</body>
 </html>
