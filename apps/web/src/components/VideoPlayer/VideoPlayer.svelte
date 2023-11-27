@@ -251,6 +251,7 @@
 			>
 		</div>
 	{/if}
+
 	<VideoEndScreen {duration} {nextVid} {video} {autoplayNext} />
 </div>
 

@@ -60,9 +60,10 @@ try {
 	let filepath =
 		Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? "";
 	let dir = fs.readdirSync(
-		`${BASE_VOLUME_PATH}${filepath ? "/" + filepath.split("/") : ""}`,
+		`${BASE_VOLUME_PATH}${filepath ? `/${filepath}` : ""}`,
 	);
 	let newDirectory = dir?.filter((file) => !file.startsWith("."));
+	console.log(`${filepath}/${newDirectory[0]?.replace(".mp4", "")}`);
 	const dirFilter = newDirectory
 		.map((filename) =>
 			pb.filter("(filepath = {:path} && profile = {:profileId} )", {
@@ -100,6 +101,7 @@ try {
 } catch (err) {
 	console.error(err);
 }
+console.log({ directory });
 ---
 
 <WatchLayout title="Welcome to Astro.">

@@ -52,7 +52,7 @@
 	}
 </script>
 
-{#if autoplayNext && videoEnded && !autoplayCancelled}
+{#if videoEnded && !autoplayCancelled}
 	<div
 		in:fade={{ duration: 500 }}
 		out:fade={{ duration: 150 }}
@@ -63,7 +63,11 @@
 				class="flex flex-col h-full items-center justify-center w-full -mt-20"
 			>
 				<div class="flex flex-col gap-2 items-center justify-center">
-					<p class="text-white/90 w-full">
+					<p
+						class:opacity-0={!autoplayNext}
+						class:select-none={!autoplayNext}
+						class="text-white/90 w-full transition-opacity duration-300"
+					>
 						Up next in <span class="text-white">{autoplayCountdown}</span>
 					</p>
 					<VideoThumbnail
