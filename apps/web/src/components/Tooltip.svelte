@@ -1,7 +1,15 @@
 <script lang="ts">
 	import { fly } from "svelte/transition";
 
-	type Positions = `${"top" | "bottom"} ${"left" | "right" | "center"}`;
+	type ExtractPosition<PositionString extends string> =
+		PositionString extends `${infer Side} ${infer Align}`
+			? { side: Side; align: Align }
+			: { error: "Cannot parse semver string" };
+	type Positions =
+		| `${"top" | "bottom"} ${"left" | "right" | "center"}`
+		| `${"left" | "right"} ${"top" | "bottom" | "center"}`;
+	type Sides = ExtractPosition<Positions>["side"];
+	type Aligns = ExtractPosition<Positions>["align"];
 
 	export let className: string = "";
 	export let tip: string | true;
@@ -10,26 +18,46 @@
 
 	let tooltipEl: HTMLElement;
 	let wrapperEl: HTMLElement;
-
+	$: [side, align] = pos.split(" ");
 	// find distance between the beginning of the contain element and the beginning of the tooltip element
 	let distance = 0;
 	$: {
 		if (containEl && wrapperEl && tooltipEl) {
+			const isVertical = side === "top" || side === "bottom";
+			const isHorizontal = side === "left" || side === "right";
 			const tooltipWidth = tooltipEl.clientWidth;
+			const tooltipHeight = tooltipEl.clientHeight;
 			const rect = wrapperEl.getBoundingClientRect();
 			const containRect = containEl.getBoundingClientRect();
-			const wrapperStart = rect.left;
-			const containStart = containRect.left;
-			const wrapperEnd = rect.right;
-			const containEnd = containRect.right;
-			const startDistance = wrapperStart + containStart;
-			const endDistance = containEnd - wrapperEnd;
-			if (startDistance < tooltipWidth / 2) {
-				distance = -startDistance;
-			} else if (endDistance < tooltipWidth / 2) {
-				distance = -tooltipWidth + rect.width / 2 + endDistance;
-			} else {
-				distance = -(tooltipWidth / 2);
+
+			if (isVertical) {
+				const wrapperStart = rect.left;
+				const containStart = containRect.left;
+				const wrapperEnd = rect.right;
+				const containEnd = containRect.right;
+				const startDistance = wrapperStart + containStart;
+				const endDistance = containEnd - wrapperEnd;
+				if (startDistance < tooltipWidth / 2) {
+					distance = -startDistance;
+				} else if (endDistance < tooltipWidth / 2) {
+					distance = -tooltipWidth + rect.width / 2 + endDistance;
+				} else {
+					distance = -(tooltipWidth / 2);
+				}
+			} else if (isHorizontal) {
+				const wrapperStart = rect.top;
+				const containStart = containRect.top;
+				const wrapperEnd = rect.bottom;
+				const containEnd = containRect.bottom;
+				const startDistance = wrapperStart + containStart;
+				const endDistance = containEnd - wrapperEnd;
+				if (startDistance < tooltipHeight / 2) {
+					distance = -startDistance;
+				} else if (endDistance < tooltipHeight / 2) {
+					distance = -tooltipHeight + rect.height / 2 + endDistance;
+				} else {
+					distance = -(tooltipHeight / 2);
+				}
 			}
 		}
 	}
@@ -48,13 +76,17 @@
 	};
 	let style = "";
 	$: {
-		style =
-			pos.split(" ")[1] === "center"
-				? `left: 50%; transform: translateX(${distance}px) translateY(var(--tw-translate-y));`
-				: // `left: 50%; transform: translateX(max(-50%, -${
-				  // 		distance || 0
-				  //   }px)) translateY(var(--tw-translate-y));`
-				  "";
+		const isVertical = side === "top" || side === "bottom";
+		const isHorizontal = side === "left" || side === "right";
+		const sideDir = side === "top" || side === "left" ? -1 : 1;
+		if (align === "center" && isVertical)
+			style = `${side}: ${sideDir}rem; left: 50%; transform: translateX(${distance}px) translateY(${
+				100 * sideDir
+			}%);`;
+		else if (align === "center" && isHorizontal)
+			style = `${side}: ${sideDir}rem; top: 50%; transform: translateY(calc(-50% + ${distance}px)) translateX(${
+				100 * sideDir
+			}%);`;
 	}
 </script>
 
@@ -71,14 +103,14 @@
 		{#if hovering}
 			<div
 				bind:this={tooltipEl}
-				class="tooltip absolute w-fit select-none overflow-hidden rounded whitespace-nowrap {pos}"
+				class="tooltip absolute w-fit select-none overflow-hidden rounded whitespace-nowrap z-50 {pos}"
 				{style}
-				in:fly={{ duration: 150, y: 8, opacity: 0 }}
-				out:fly={{ duration: 150, y: 8, opacity: 0 }}
+				in:fly={{ duration: 300, y: 8, opacity: 0 }}
+				out:fly={{ duration: 300, y: 8, opacity: 0 }}
 			>
 				<slot name="tip">
 					<p
-						class="bg-black/50 ring-1 ring-white shadow-md text-white px-1 py-0.5"
+						class="bg-black/50 border border-white/10 rounded shadow-md text-white px-1 py-0.5"
 					>
 						{tip}
 					</p>

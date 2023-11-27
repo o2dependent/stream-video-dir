@@ -15,6 +15,8 @@
 	import { curVideoPercent } from "$stores/watch/curVideoPercent";
 	import { onMount } from "svelte";
 	import { isFullscreen, toggleFullscreen } from "$stores/isFullscreen";
+	import Tooltip from "$components/Tooltip.svelte";
+	import AutoplayToggle from "./AutoplayToggle.svelte";
 
 	export let filepath: string;
 	export let duration: number | undefined;
@@ -38,6 +40,7 @@
 	});
 	let video: HTMLVideoElement;
 	let controlsContainer: HTMLDivElement;
+	let videoTopContainer: HTMLDivElement;
 	let isEnded = false;
 	let paused = true;
 	let currentTime: number = startTime ?? 0;
@@ -118,6 +121,7 @@
 	class:cursor-none={!(paused || isHovered)}
 >
 	<KeyboardControls {video} {tempShowControls} />
+
 	<video
 		bind:this={video}
 		bind:paused
@@ -138,11 +142,46 @@
 		Your browser does not support the video tag.
 	</video>
 	<VideoPlayPausePopup {paused} />
-
+	<div
+		bind:this={videoTopContainer}
+		class="peer flex justify-between px-3 absolute top-0 left-0 w-full z-20 h-16 bg-gradient-to-b from-black/50 via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
+		class:opacity-100={video?.paused || isHovered}
+		class:-translate-y-full={!(video?.paused || isHovered)}
+	>
+		<div class="h-full flex gap-2">
+			<Tooltip containEl={videoTopContainer} tip="Back" pos="right center">
+				<a
+					href={`/directory/${
+						filepath.split("/").length === 1
+							? ""
+							: filepath.split("/").slice(0, -1).join("/")
+					}`}
+					class="h-full aspect-square flex items-center justify-center group"
+					type="button"
+				>
+					<svg
+						class="w-8 h-8 sm:w-12 sm:h-12l text-white transition-transform group-hover:translate-y-0 translate-y-1 duration-300"
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						><g fill="none"
+							><path
+								d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z"
+							/><path
+								fill="currentColor"
+								d="M3.283 10.94a1.5 1.5 0 0 0 0 2.12l5.656 5.658a1.5 1.5 0 1 0 2.122-2.122L7.965 13.5H19.5a1.5 1.5 0 0 0 0-3H7.965l3.096-3.096a1.5 1.5 0 1 0-2.122-2.121L3.283 10.94Z"
+							/></g
+						></svg
+					>
+				</a>
+			</Tooltip>
+		</div>
+	</div>
 	<div
 		aria-label="Video controls"
 		id="controls"
-		class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-20 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
+		class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-20 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 peer-hover:opacity-100 peer-hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
 		class:opacity-100={video?.paused || isHovered}
 		class:translate-y-full={!(video?.paused || isHovered)}
 	>
@@ -159,28 +198,31 @@
 		>
 			<div class="flex justify-betweens h-full w-full">
 				<div class="h-full w-full flex gap-2 items-center">
-					<PlayPauseButton {video} container={controlsContainer} />
+					<PlayPauseButton {video} containEl={controlsContainer} />
 
-					<VolumeController {video} />
+					<VolumeController {video} containEl={controlsContainer} />
 
-					<p class="flex justify-center items-center h-full">
-						{durationTime?.hours > 0 ? `${curTime?.hours}:` : ""}
+					<p
+						class="flex justify-center items-center h-full w-fit whitespace-nowrap"
+					>
 						{durationTime?.hours > 0
+							? `${curTime?.hours}:`
+							: ""}{durationTime?.hours > 0
 							? padNum(curTime?.minutes)
-							: curTime?.minutes}:
-						{padNum(curTime?.seconds)}
-						/
-						{durationTime?.hours > 0 ? `${durationTime?.hours}:` : ""}
+							: curTime?.minutes}:{padNum(
+							curTime?.seconds,
+						)}/{durationTime?.hours > 0 ? `${durationTime?.hours}:` : ""}
 						{durationTime?.hours > 0
 							? padNum(durationTime?.minutes ?? 0)
-							: durationTime?.minutes}:
-						{padNum(durationTime?.seconds ?? 0)}
+							: durationTime?.minutes}:{padNum(durationTime?.seconds ?? 0)}
 					</p>
-					<p class="text-xl font-bold">
+					<p
+						class="hidden sm:block text-base font-bold w-full text-ellipsis whitespace-nowrap overflow-hidden"
+					>
 						{filepath?.split("/")?.at(-1)}
 					</p>
 				</div>
-				<div class="w-full flex justify-end gap-2">
+				<div class="flex justify-end gap-2">
 					<NextVideoButton
 						containEl={controlsContainer}
 						duration={nextVid?.duration}
@@ -188,25 +230,8 @@
 						timestamp={nextVid?.timestamp}
 						videoTitle={nextVid?.videoTitle ?? "No title found"}
 					/>
-					<label
-						class="flex h-full items-center justify-center relative w-8 cursor-pointer"
-						class:paused={autoplayNext}
-					>
-						<input
-							type="checkbox"
-							class="absolute top-0 left-0 appearance-none h-full w-full peer cursor-pointer"
-							bind:checked={autoplayNext}
-						/>
-						<div
-							class="h-3 w-full absolute top-1/2 left-0 -translate-y-1/2 rounded-full bg-slate-700 peer-checked:bg-slate-600 transition-all"
-						/>
-						<div
-							class="absolute top-1/2 -translate-x-1/2 peer-checked:left-3/4 left-1/4 w-4 h-4 rounded-full peer-checked:text-black text-black bg-white transition-all duration-150 ease-in-out transform -translate-y-1/2 flex items-center justify-center"
-						>
-							<PlayPauseIcon className="w-3 h-3" height={16} width={16} />
-						</div>
-					</label>
-					<FullscreenButton container={controlsContainer} />
+					<AutoplayToggle bind:autoplayNext containEl={controlsContainer} />
+					<FullscreenButton containEl={controlsContainer} />
 				</div>
 			</div>
 		</div>

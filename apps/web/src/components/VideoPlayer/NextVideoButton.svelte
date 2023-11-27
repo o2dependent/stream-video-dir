@@ -13,7 +13,7 @@
 	<Tooltip {containEl} className="aspect-square h-full" tip pos="top center">
 		<div
 			slot="tip"
-			class="w-72 bg-black/50 backdrop-blur-md border border-black/50 rounded-md overflow-hidden relative"
+			class="w-72 bg-black/50 backdrop-blur-md border border-white/10 rounded shadow-md text-white overflow-hidden relative"
 		>
 			<div class="px-1 py-2 w-full flex flex-col gap-0">
 				<p class="font-semibold opacity-50">Next (Shift+N)</p>
