@@ -9,9 +9,17 @@ export const GET: APIRoute = async ({
 	params,
 }) => {
 	const query = new URL(request.url).searchParams;
-	const filepath = params?.filepath ?? "";
+	let filepath = params?.filepath ?? "";
+	if (!filepath)
+		return new Response(JSON.stringify({}), {
+			status: 400,
+			statusText: "Filepath not provided",
+		});
+	if (!filepath.includes(".mp4")) {
+		filepath += ".mp4";
+	}
 	// stream video
-	const videoPath = `${BASE_VOLUME_PATH}/${filepath}.mp4`;
+	const videoPath = `${BASE_VOLUME_PATH}/${filepath}`;
 	const fileSize = fs.statSync(`${videoPath}`).size;
 	const range = request.headers.get("range") || "bytes=0-";
 	const positions = RangeParser(fileSize, range, { combine: true }) as any;

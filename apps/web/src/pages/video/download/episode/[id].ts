@@ -2,7 +2,7 @@ import { BASE_VOLUME_PATH, TMP_FOLDER } from "$lib/constants";
 import type { APIRoute } from "astro";
 import fs from "fs";
 import type { RecordModel } from "pocketbase";
-import { downloadGDriveFile } from "services/gdrive/downloadGDriveFile";
+import { downloadFileById } from "services/gdrive/downloadFileById";
 
 export const POST: APIRoute = async ({ request, params, locals }) => {
 	const id = params?.id ?? "";
@@ -75,7 +75,7 @@ export const POST: APIRoute = async ({ request, params, locals }) => {
 		`${TMP_FOLDER}/download_queue.json`,
 		JSON.stringify([...downloadQueue, id]),
 	);
-	await downloadGDriveFile(gdrive_file_id, `${BASE_VOLUME_PATH}/${filepath}`);
+	await downloadFileById(gdrive_file_id, `${BASE_VOLUME_PATH}/${filepath}`);
 	console.log("download finished", id);
 	// remove from download queue
 	downloadQueue = JSON.parse(
