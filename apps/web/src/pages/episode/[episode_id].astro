@@ -1,23 +1,48 @@
 ---
-import Layout from "$layouts/Layout.astro";
 import VideoPlayer from "$components/VideoPlayer/VideoPlayer.svelte";
-import DirectorySlider from "$components/DirectorySlider.svelte";
+import { BASE_VOLUME_PATH } from "$lib/constants";
+import fs from "fs";
+import WatchLayout from "$layouts/WatchLayout.astro";
+import VideoContainer from "$components/VideoContainer.svelte";
+import type { RecordModel } from "pocketbase";
 
-const { filepath } = Astro.params;
+const { episode_id } = Astro.params;
+if (!episode_id) return Astro.redirect(`/series`);
+
 const hostname = Astro.url.hostname;
+
+let filepath: string;
 let startTime = 0;
 let watchedTimestamp;
+
 const pb = Astro.locals.pb;
+
+let episode: RecordModel;
+try {
+	episode = await pb.collection("episodes").getOne(episode_id, {
+		expand: "series,season",
+	});
+} catch (error) {
+	return Astro.redirect(`/series`);
+}
+
+console.log(episode);
+filepath = episode?.pathname;
+if (episode?.expand?.season)
+	filepath = `${episode?.expand?.season?.pathname}/${filepath}`;
+if (episode?.expand?.series)
+	filepath = `${episode?.expand?.series?.pathname}/${filepath}`;
+
 try {
 	watchedTimestamp = await pb.collection("watched_timestamps").getFirstListItem(
-		pb.filter(`filepath = {:filepath} && profile = {:profile_id}`, {
-			filepath,
+		pb.filter(`episode = {:episode_id} && profile = {:profile_id}`, {
+			episode_id: episode?.id,
 			profile_id: Astro.locals?.profile?.id,
 		}),
 	);
 } catch (error) {
 	watchedTimestamp = await pb.collection("watched_timestamps").create({
-		filepath,
+		episode: episode?.id,
 		profile: Astro.locals?.profile?.id,
 		time: 0,
 	});
@@ -29,13 +54,8 @@ const fullyWatched =
 startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
 
 //TODO: MOVE THE BELOW CODE INTO "DirectoryList.astro" after moving the svelte file to astro
-import { BASE_VOLUME_PATH } from "$lib/constants";
-import fs from "fs";
-import WatchLayout from "$layouts/WatchLayout.astro";
-import VideoContainer from "$components/VideoContainer.svelte";
 
 // if the file does not exist redirect back
-console.log(`${BASE_VOLUME_PATH}/${filepath}`);
 if (!fs.existsSync(`${BASE_VOLUME_PATH}/${filepath}`)) {
 	return Astro.redirect(
 		`/directory/${filepath?.split("/")?.slice(0, -1)?.join("/")}`,
@@ -121,7 +141,8 @@ console.log({ directory });
 	>
 		<VideoPlayer
 			client:load
-			filepath={filepath ?? ""}
+			{episode}
+			filepath={filepath.replace(".mp4", "") ?? ""}
 			duration={latestVideoIdx !== undefined
 				? directory?.[latestVideoIdx]?.duration
 				: undefined}

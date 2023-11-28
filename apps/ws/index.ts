@@ -28,14 +28,14 @@ io.on("connection", (socket) => {
 	socket.on("timeupdate", async (data) => {
 		const pb = new PocketBase("http://127.0.0.1:8090");
 		if (!profile_id) return socket.emit("timeupdated", { success: false });
-		let { filepath, time, duration, log } = data;
-		if (log) console.log({ filepath, time, duration });
+		let { episode, time, duration, log } = data;
+		if (log) console.log({ episode, time, duration });
 		let timestamp: RecordModel | undefined;
 		// get file or create a new one
 		try {
 			timestamp = await pb.collection("watched_timestamps").getFirstListItem(
-				pb.filter(`filepath = {:filepath} && profile = {:profile_id}`, {
-					filepath,
+				pb.filter(`episode = {:episode} && profile = {:profile_id}`, {
+					episode,
 					profile_id,
 				}),
 			);
@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
 		} catch (error) {
 			try {
 				timestamp = await pb.collection("watched_timestamps").create({
-					filepath,
+					episode,
 					profile: profile_id,
 					timestamp: time,
 					duration,

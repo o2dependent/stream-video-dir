@@ -17,6 +17,7 @@
 	import { isFullscreen, toggleFullscreen } from "$stores/isFullscreen";
 	import Tooltip from "$components/Tooltip.svelte";
 	import AutoplayToggle from "./AutoplayToggle.svelte";
+	import type { RecordModel } from "pocketbase";
 
 	export let filepath: string;
 	export let duration: number | undefined;
@@ -30,8 +31,10 @@
 				timestamp: number | undefined;
 		  }
 		| undefined;
+	export let episode: RecordModel;
 
 	let container: HTMLElement;
+
 	onMount(() => {
 		const videoContainer = document.querySelector("#video-container");
 		if (videoContainer) {
@@ -77,7 +80,7 @@
 			((target?.currentTime ?? 0) / (target?.duration ?? 1)) * 100,
 		);
 		socket.emit("timeupdate", {
-			filepath,
+			episode: episode.id,
 			time: target.currentTime,
 			duration: video?.duration ?? 0,
 			log: false,
@@ -209,9 +212,10 @@
 							? `${curTime?.hours}:`
 							: ""}{durationTime?.hours > 0
 							? padNum(curTime?.minutes)
-							: curTime?.minutes}:{padNum(
-							curTime?.seconds,
-						)}/{durationTime?.hours > 0 ? `${durationTime?.hours}:` : ""}
+							: curTime?.minutes}:{padNum(curTime?.seconds)} / {durationTime?.hours >
+						0
+							? `${durationTime?.hours}:`
+							: ""}
 						{durationTime?.hours > 0
 							? padNum(durationTime?.minutes ?? 0)
 							: durationTime?.minutes}:{padNum(durationTime?.seconds ?? 0)}

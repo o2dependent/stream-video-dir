@@ -160,12 +160,14 @@ for (const episode of list) {
 	<script>
 		import PocketBase from "pocketbase";
 
-		const pb = new PocketBase("https://pocketbase.io");
+		const pb = new PocketBase("http://127.0.0.1:8090");
 
 		const handleClick = async () => {
 			const authData = await pb
 				.collection("users")
 				.authWithOAuth2({ provider: "google" });
+
+			console.log({ authData });
 
 			// after the above you can also access the auth data from the authStore
 			console.log(pb.authStore.isValid);
