@@ -7,19 +7,42 @@ export const GET: APIRoute = async ({
 	request,
 	ResponseWithEncoding,
 	params,
+	locals,
 }) => {
-	const query = new URL(request.url).searchParams;
-	const filepath = params?.filepath ?? "";
+	const id = params?.id ?? "";
+	if (!id)
+		return new Response(undefined, {
+			status: 404,
+			statusText: "Id not provided",
+		});
+
+	const episode = await locals.pb.collection("episodes").getOne(id, {
+		expand: "series,season",
+	});
+
+	let filepathFolder = "";
+	if (episode?.expand?.season)
+		filepathFolder = `${episode?.expand?.season?.pathname}/${filepathFolder}`;
+	if (episode?.expand?.series)
+		filepathFolder = `${episode?.expand?.series?.pathname}/${filepathFolder}`;
+
+	const filepathFile = episode?.pathname;
+
+	const filepath = `${filepathFolder ?? ""}${
+		filepathFolder ? "/" : ""
+	}${filepathFile}`;
+
 	const ext = params?.ext ?? "";
-	const filepathFolder = filepath.split("/").slice(0, -1).join("/");
-	const filepathFile = filepath.split("/").slice(-1)[0];
 	const folder = `${BASE_VOLUME_PATH}/${filepathFolder}/.${filepathFile}`;
 	// if video doesn't exist || ext is not "png" or "gif" return 404
 	if (
 		!["png", "gif"].includes(ext) ||
-		!fs.existsSync(`${BASE_VOLUME_PATH}/${filepath}.mp4`)
+		!fs.existsSync(`${BASE_VOLUME_PATH}/${filepath}`)
 	) {
-		return new Response(undefined, { status: 404 });
+		return new Response(undefined, {
+			status: 400,
+			statusText: "Invalid extension.",
+		});
 	}
 	// if folder doesn't already exist create it
 	if (!fs.existsSync(folder)) {
@@ -28,7 +51,7 @@ export const GET: APIRoute = async ({
 	const imagePath = `${folder}/thumbnail.${ext}`;
 	// check if thumbnail exists
 	if (!fs.existsSync(imagePath)) {
-		const video = ffmpeg(`${BASE_VOLUME_PATH}/${filepath}.mp4`);
+		const video = ffmpeg(`${BASE_VOLUME_PATH}/${filepath}`);
 		// generate thumbnail
 		if (ext === "gif") {
 			await new Promise((resolve, reject) =>
