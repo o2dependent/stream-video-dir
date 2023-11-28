@@ -1,10 +1,15 @@
 ---
 import type { RecordModel } from "pocketbase";
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { BASE_VOLUME_PATH } from "$lib/constants";
 const list = await Astro.locals.pb.collection("episodes").getFullList({
 	sort: "-created",
 	expand: "season,series",
+});
+
+const seasons = await Astro.locals.pb.collection("seasons").getFullList({
+	sort: "-created",
+	expand: "series",
 });
 
 // for (const { filename, gdrive_file_id } of gdriveFoldersContents) {
@@ -116,7 +121,20 @@ const list = await Astro.locals.pb.collection("episodes").getFullList({
 // 			.update(id, { filepath });
 // 	}),
 // );
+
+//SECTION Create folder structure for seasons and series if they don't exist
+for (const season of seasons) {
+	const series_pathname = season?.expand?.series?.pathname ?? null;
+	const season_pathname = season?.pathname ?? null;
+	const pathname = `${series_pathname}/${season_pathname}`;
+	if (!existsSync(`${BASE_VOLUME_PATH}/${pathname}`)) {
+		console.log(`Creating folder: ${pathname}`);
+		await mkdirSync(`${BASE_VOLUME_PATH}/${pathname}`, { recursive: true });
+	}
+}
+//!SECTION
 console.log({ expand: list[0] });
+//SECTION Update downloaded status
 for (const episode of list) {
 	const series_pathname = episode?.expand?.series?.pathname ?? null;
 	const season_pathname = episode?.expand?.season?.pathname ?? null;
@@ -129,6 +147,7 @@ for (const episode of list) {
 			.update(episode.id, { downloaded: isDownloaded });
 	}
 }
+//!SECTION
 // await Promise.all(
 // 	list?.map(({ id }) => {
 // 		return Astro.locals.pb.collection("episodes").delete(id);
@@ -136,6 +155,31 @@ for (const episode of list) {
 // );
 ---
 
+<div>
+	<button type="button" id="signin-google">Sign in google</button>
+	<script>
+		import PocketBase from "pocketbase";
+
+		const pb = new PocketBase("https://pocketbase.io");
+
+		const handleClick = async () => {
+			const authData = await pb
+				.collection("users")
+				.authWithOAuth2({ provider: "google" });
+
+			// after the above you can also access the auth data from the authStore
+			console.log(pb.authStore.isValid);
+			console.log(pb.authStore.token);
+			console.log(pb?.authStore?.model?.id);
+
+			// "logout" the last authenticated model
+			pb.authStore.clear();
+		};
+		document
+			?.getElementById("signin-google")
+			?.addEventListener("click", handleClick);
+	</script>
+</div>
 <div class="bg-slate-950 text-slate-50">
 	<div
 		class="grid"

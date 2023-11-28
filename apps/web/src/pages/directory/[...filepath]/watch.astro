@@ -36,7 +36,7 @@ import VideoContainer from "$components/VideoContainer.svelte";
 
 // if the file does not exist redirect back
 console.log(`${BASE_VOLUME_PATH}/${filepath}`);
-if (!fs.existsSync(`${BASE_VOLUME_PATH}/${filepath}`)) {
+if (!fs.existsSync(`${BASE_VOLUME_PATH}/${filepath}.mp4`)) {
 	return Astro.redirect(
 		`/directory/${filepath?.split("/")?.slice(0, -1)?.join("/")}`,
 	);
