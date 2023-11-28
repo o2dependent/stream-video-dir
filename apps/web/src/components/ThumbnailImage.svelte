@@ -17,6 +17,6 @@
 	class="w-full max-w-md aspect-video object-contain"
 	on:mouseenter={mouseenter}
 	on:mouseleave={mouseleave}
-	src="/thumbnail/${type}/{id}.{isHovering ? 'gif' : 'png'}"
+	src="/thumbnail/{type}/{id}.{isHovering ? 'gif' : 'png'}"
 	alt={name}
 />
