@@ -36,7 +36,7 @@ if (Astro.request.method === "POST") {
 			errors.message = "Profile not found! Try again";
 			return Astro.redirect("/");
 		}
-		return Astro.redirect("/directory");
+		return Astro.redirect("/series");
 	} else if (params.includes("update") || params.includes("create")) {
 		const data = await Astro.request.formData();
 		const name = data.get("profileName");

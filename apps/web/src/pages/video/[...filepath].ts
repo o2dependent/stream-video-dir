@@ -3,12 +3,7 @@ import type { APIRoute } from "astro";
 import fs from "fs";
 import RangeParser from "range-parser";
 
-export const GET: APIRoute = async ({
-	request,
-	ResponseWithEncoding,
-	params,
-}) => {
-	const query = new URL(request.url).searchParams;
+export const GET: APIRoute = async ({ request, params }) => {
 	let filepath = params?.filepath ?? "";
 	if (!filepath)
 		return new Response(JSON.stringify({}), {

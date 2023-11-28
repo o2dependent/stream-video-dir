@@ -137,11 +137,7 @@
 		<div class="h-full flex gap-2">
 			<Tooltip containEl={videoTopContainer} tip="Back" pos="right center">
 				<a
-					href={`/directory/${
-						filepath.split("/").length === 1
-							? ""
-							: filepath.split("/").slice(0, -1).join("/")
-					}`}
+					href={`/series/${episode?.series}/${episode?.season}`}
 					class="h-full aspect-square flex items-center justify-center group"
 					type="button"
 				>
