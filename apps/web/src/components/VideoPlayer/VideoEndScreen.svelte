@@ -2,18 +2,12 @@
 	import { navigate } from "astro:transitions/client";
 	import { fade } from "svelte/transition";
 	import VideoThumbnail from "$components/VideoThumbnail.svelte";
+	import type { RecordModel } from "pocketbase";
 
 	export let autoplayNext: boolean;
 	export let video: HTMLVideoElement;
 	export let duration: number | undefined;
-	export let nextVid:
-		| {
-				videoPath: string;
-				videoTitle: string;
-				duration: number | undefined;
-				timestamp: number | undefined;
-		  }
-		| undefined;
+	export let nextEpisode: RecordModel | undefined;
 
 	$: videoEnded = video?.currentTime && video?.currentTime === duration;
 	let autoplayTimeout: NodeJS.Timeout | undefined;
@@ -30,7 +24,8 @@
 			autoplayNext &&
 			!autoplayCancelled &&
 			videoEnded &&
-			nextVid &&
+			nextEpisode &&
+			nextEpisode?.id &&
 			!autoplayTimeout &&
 			!autoplayCountdownInterval
 		) {
@@ -41,7 +36,7 @@
 			}, 1000);
 			autoplayTimeout = setTimeout(() => {
 				// navigate to next video
-				navigate(`/directory/${nextVid?.videoPath}/watch`);
+				navigate(`/episode/${nextEpisode?.id}`);
 			}, 5000);
 		} else if (!videoEnded || autoplayCancelled || !autoplayNext) {
 			clearTimeout(autoplayTimeout);
@@ -58,7 +53,7 @@
 		out:fade={{ duration: 150 }}
 		class="absolute z-10 top-0 left-0 w-full h-full flex justify-center items-center bg-black"
 	>
-		{#if nextVid}
+		{#if nextEpisode && nextEpisode?.id}
 			<div
 				class="flex flex-col h-full items-center justify-center w-full -mt-20"
 			>
@@ -70,12 +65,7 @@
 					>
 						Up next in <span class="text-white">{autoplayCountdown}</span>
 					</p>
-					<VideoThumbnail
-						duration={nextVid.duration}
-						videoPath={nextVid.videoPath}
-						timestamp={nextVid.timestamp}
-						videoTitle={nextVid.videoTitle}
-					/>
+					<VideoThumbnail episode={nextEpisode} isCurrentVideo={false} />
 					<div class="w-full flex gap-2">
 						<button
 							on:click={() => {
@@ -86,7 +76,7 @@
 							Cancel
 						</button>
 						<a
-							href={`/directory/${nextVid.videoPath}/watch`}
+							href={`/episode/${nextEpisode?.id}`}
 							class="text-center rounded-full w-full h-fit px-4 py-2 mx-auto bg-white/25 hover:text-white focus:text-white text-white/90 transition-colors"
 						>
 							Play Now

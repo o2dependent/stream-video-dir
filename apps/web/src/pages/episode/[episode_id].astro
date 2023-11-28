@@ -53,84 +53,22 @@ const fullyWatched =
 	watchedTimestamp?.timestamp === watchedTimestamp?.duration;
 startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
 
-//TODO: MOVE THE BELOW CODE INTO "DirectoryList.astro" after moving the svelte file to astro
-
 // if the file does not exist redirect back
 if (!fs.existsSync(`${BASE_VOLUME_PATH}/${filepath}`)) {
-	return Astro.redirect(
-		`/directory/${filepath?.split("/")?.slice(0, -1)?.join("/")}`,
-	);
+	return Astro.redirect(`/series/${episode?.expand?.series?.id ?? ""}`);
 }
 
-const sortByPath = (a: any, b: any) => {
-	const aPath = a.path.split(" ");
-	const bPath = b.path.split(" ");
-	for (let i = 0; i < aPath.length; i++) {
-		const bothAreNumbers =
-			!isNaN(parseInt(aPath[i])) && !isNaN(parseInt(bPath[i]));
-
-		if (bothAreNumbers && parseInt(aPath[i]) > parseInt(bPath[i])) return 1;
-		if (bothAreNumbers && parseInt(aPath[i]) < parseInt(bPath[i])) return -1;
-	}
-	return 0;
-};
-// get filepath param
-let directory: {
-	id: string;
-	path: string;
-	timestamp?: number;
-	updated?: string;
-	duration?: number;
-}[] = [];
-let latestVideoIdx: number | undefined;
-
+let nextEpisode: RecordModel | undefined;
 try {
-	// remove everything after the last slash
-	let filepath =
-		Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? "";
-	let dir = fs.readdirSync(
-		`${BASE_VOLUME_PATH}${filepath ? `/${filepath}` : ""}`,
+	nextEpisode = await pb.collection("episodes").getFirstListItem(
+		pb.filter(`episode_index = {:next_episode_index}`, {
+			next_episode_index: episode?.episode_index + 1,
+		}),
 	);
-	let newDirectory = dir?.filter((file) => !file.startsWith("."));
-	console.log(`${filepath}/${newDirectory[0]?.replace(".mp4", "")}`);
-	const dirFilter = newDirectory
-		.map((filename) =>
-			pb.filter("(filepath = {:path} && profile = {:profileId} )", {
-				path: `${filepath}/${filename?.replace(".mp4", "")}`,
-				profileId: Astro.locals.profile?.id,
-			}),
-		)
-		.join(" || ");
-	const watchedTimestamps = await pb
-		.collection("watched_timestamps")
-		.getFullList({
-			filter: `${dirFilter}`,
-			sort: "-updated",
-		});
-	// add watched timestamps to directory
-	directory = newDirectory
-		.map((filename) => {
-			const watchedTimestamp = watchedTimestamps.find((wt, idx) => {
-				const isSamePath =
-					wt.filepath === `${filepath}/${filename?.replace(".mp4", "")}`;
-				return isSamePath;
-			});
-			return {
-				id: watchedTimestamp?.id ?? "NO ID FOUND",
-				path: filename,
-				timestamp: watchedTimestamp?.timestamp ?? 0,
-				updated: watchedTimestamp?.updated,
-				duration: watchedTimestamp?.duration || 1,
-			};
-		})
-		.sort(sortByPath);
-	latestVideoIdx = directory?.findIndex(
-		(wt) => wt.path === Astro.params.filepath?.split("/").at(-1) + ".mp4",
-	);
-} catch (err) {
-	console.error(err);
+	if (!nextEpisode) nextEpisode = undefined;
+} catch (error) {
+	nextEpisode = undefined;
 }
-console.log({ directory });
 ---
 
 <WatchLayout title="Welcome to Astro.">
@@ -143,23 +81,7 @@ console.log({ directory });
 			client:load
 			{episode}
 			filepath={filepath.replace(".mp4", "") ?? ""}
-			duration={latestVideoIdx !== undefined
-				? directory?.[latestVideoIdx]?.duration
-				: undefined}
-			nextVid={latestVideoIdx !== undefined &&
-			latestVideoIdx + 1 < directory?.length
-				? {
-						videoPath: `${
-							Astro.params.filepath?.split("/")?.slice(0, -1)?.join("/") ?? ""
-						}/${directory?.[latestVideoIdx + 1]?.path.replace(".mp4", "")}`,
-						videoTitle: directory?.[latestVideoIdx + 1]?.path.replace(
-							".mp4",
-							"",
-						),
-						duration: directory?.[latestVideoIdx + 1]?.duration,
-						timestamp: directory?.[latestVideoIdx + 1]?.timestamp,
-				  }
-				: undefined}
+			{nextEpisode}
 			{startTime}
 			{hostname}
 		/>

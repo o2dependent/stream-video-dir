@@ -9,38 +9,21 @@
 	import VideoPlayPausePopup from "./VideoPlayPausePopup.svelte";
 	import FullscreenButton from "./FullscreenButton.svelte";
 	import VideoEndScreen from "./VideoEndScreen.svelte";
-	import PlayPauseIcon from "./PlayPauseIcon.svelte";
 	import KeyboardControls from "./KeyboardControls.svelte";
 	import VolumeController from "./VolumeController.svelte";
 	import { curVideoPercent } from "$stores/watch/curVideoPercent";
-	import { onMount } from "svelte";
-	import { isFullscreen, toggleFullscreen } from "$stores/isFullscreen";
+	import { toggleFullscreen } from "$stores/isFullscreen";
 	import Tooltip from "$components/Tooltip.svelte";
 	import AutoplayToggle from "./AutoplayToggle.svelte";
 	import type { RecordModel } from "pocketbase";
 
 	export let filepath: string;
-	export let duration: number | undefined;
+	export let duration: number | undefined = undefined;
 	export let startTime: number | undefined;
 	export let hostname: string;
-	export let nextVid:
-		| {
-				videoPath: string;
-				videoTitle: string;
-				duration: number | undefined;
-				timestamp: number | undefined;
-		  }
-		| undefined;
+	export let nextEpisode: RecordModel | undefined;
 	export let episode: RecordModel;
 
-	let container: HTMLElement;
-
-	onMount(() => {
-		const videoContainer = document.querySelector("#video-container");
-		if (videoContainer) {
-			container = videoContainer as HTMLElement;
-		}
-	});
 	let video: HTMLVideoElement;
 	let controlsContainer: HTMLDivElement;
 	let videoTopContainer: HTMLDivElement;
@@ -229,10 +212,7 @@
 				<div class="flex justify-end gap-2">
 					<NextVideoButton
 						containEl={controlsContainer}
-						duration={nextVid?.duration}
-						videoPath={nextVid?.videoPath}
-						timestamp={nextVid?.timestamp}
-						videoTitle={nextVid?.videoTitle ?? "No title found"}
+						episode={nextEpisode}
 					/>
 					<AutoplayToggle bind:autoplayNext containEl={controlsContainer} />
 					<FullscreenButton containEl={controlsContainer} />
@@ -240,7 +220,7 @@
 			</div>
 		</div>
 	</div>
-	{#if nextVid && (currentTime / video?.duration) * 100 >= 99.5}
+	{#if nextEpisode && nextEpisode?.id && (currentTime / video?.duration) * 100 >= 99.5}
 		<div
 			in:fly={{ y: 16, duration: 300 }}
 			out:fly={{ y: -16, duration: 300 }}
@@ -249,14 +229,16 @@
 			class="absolute peer-hover:-translate-y-16 h-8 right-4 bottom-4 transition-all duration-300"
 		>
 			<a
-				href={`/directory/${nextVid.videoPath}/watch`}
+				href={`/episode/${nextEpisode?.id}`}
 				class="rounded-md px-2 py-1 lg:text-lg bg-black/20 backdrop-blur-md text-white/80 border border-white/10 hover:border-white/25 hover:text-white transition-colors duration-300"
-				type="button">Play Next</a
+				type="button"
 			>
+				Play Next
+			</a>
 		</div>
 	{/if}
 
-	<VideoEndScreen {duration} {nextVid} {video} {autoplayNext} />
+	<VideoEndScreen {duration} {nextEpisode} {video} {autoplayNext} />
 </div>
 
 <style lang="postcss">

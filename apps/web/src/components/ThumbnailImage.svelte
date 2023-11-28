@@ -1,10 +1,8 @@
 <script lang="ts">
-	export let videoPath: string;
-	export let videoTitle: string;
-	export let duration: number | undefined;
-	export let timestamp: number | undefined;
+	export let id: string;
+	export let type: "episode" | "movie" = "episode";
+	export let name: string;
 
-	$: itemPercent = ((timestamp ?? 0) / (duration ?? 1)) * 100;
 	let isHovering = false;
 
 	const mouseenter = () => {
@@ -19,6 +17,6 @@
 	class="w-full max-w-md aspect-video object-contain"
 	on:mouseenter={mouseenter}
 	on:mouseleave={mouseleave}
-	src="/thumbnail/{videoPath}.{isHovering ? 'gif' : 'png'}"
-	alt={videoTitle}
+	src="/thumbnail/${type}/{id}.{isHovering ? 'gif' : 'png'}"
+	alt={name}
 />

@@ -1,15 +1,13 @@
 <script lang="ts">
 	import ThumbnailImage from "$components/ThumbnailImage.svelte";
 	import Tooltip from "$components/Tooltip.svelte";
+	import type { RecordModel } from "pocketbase";
 
-	export let duration: number | undefined;
-	export let videoPath: string | undefined;
-	export let videoTitle: string;
-	export let timestamp: number | undefined;
+	export let episode: RecordModel | undefined;
 	export let containEl: HTMLDivElement | undefined = undefined;
 </script>
 
-{#if videoPath}
+{#if episode && episode?.id}
 	<Tooltip {containEl} className="aspect-square h-full" tip pos="top center">
 		<div
 			slot="tip"
@@ -18,14 +16,17 @@
 			<div class="px-1 py-2 w-full flex flex-col gap-0">
 				<p class="font-semibold opacity-50">Next (Shift+N)</p>
 				<p class="line-clamp-2 text-ellipsis w-full whitespace-break-spaces">
-					{videoTitle}
+					{episode?.name ?? "No title found"}
 				</p>
 			</div>
-			<ThumbnailImage {duration} {timestamp} {videoPath} {videoTitle} />
+			<ThumbnailImage
+				id={episode?.id}
+				name={episode?.name ?? "No title found"}
+			/>
 		</div>
 		<a
 			class="relative flex items-center justify-center w-full h-full aspect-square"
-			href={`/directory/${videoPath}/watch`}
+			href={`/episode/${episode?.id}`}
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
