@@ -38,12 +38,6 @@ try {
 } catch (error) {
 	Astro.redirect("/series");
 }
-
-let downloadingIds: string[] = [];
-if (existsSync(`${TMP_FOLDER}/download_queue.json`))
-	downloadingIds = JSON.parse(
-		readFileSync(`${TMP_FOLDER}/download_queue.json`, "utf-8"),
-	);
 ---
 
 <Layout title="Welcome to Astro.">
