@@ -10,20 +10,60 @@ import {
 	TMP_FOLDER,
 } from "$lib/constants";
 import { stitchImagesHorizontally } from "services/image/stitchImagesHorizontally";
+import type { RecordModel } from "pocketbase";
+import path from "path";
 
-export const GET: APIRoute = async ({
-	request,
-	ResponseWithEncoding,
-	params,
-}) => {
+export const GET: APIRoute = async ({ request, params, locals }) => {
 	const APP_NAME = import.meta?.env?.APP_NAME ?? "lowky-video";
 	const query = new URL(request.url).searchParams;
-	const filepath = params?.filepath ?? "";
+	const episode_id = params?.episode_id ?? "";
+
+	if (!episode_id)
+		return new Response(JSON.stringify({}), {
+			status: 400,
+			statusText: "Id not provided",
+		});
+
+	let episode: RecordModel;
+	try {
+		episode = await locals.pb.collection("episodes").getOne(episode_id, {
+			expand: "series,season",
+		});
+		if (!episode)
+			return new Response(JSON.stringify({}), {
+				status: 404,
+				statusText: "Episode not found",
+			});
+	} catch (error) {
+		return new Response(JSON.stringify({}), {
+			status: 404,
+			statusText: "Episode not found",
+		});
+	}
+
+	let filepathFolder = "";
+	if (episode?.expand?.season)
+		filepathFolder = path.join(
+			episode?.expand?.season?.pathname,
+			filepathFolder,
+		);
+	if (episode?.expand?.series)
+		filepathFolder = path.join(
+			episode?.expand?.series?.pathname,
+			filepathFolder,
+		);
+
+	const filepathFile = episode?.pathname as string;
+
+	let filepath = path.join(filepathFolder ?? "", filepathFile);
+
+	const folder = path.join(
+		BASE_VOLUME_PATH,
+		filepathFolder,
+		`.${filepathFile.split(".").slice(0, -1).join(".")}`,
+	);
 	const index = Number(params?.index ?? NaN);
-	const filepathFolder = filepath.split("/").slice(0, -1).join("/");
-	const filepathFile = filepath.split("/").slice(-1)[0];
-	const folder = `${BASE_VOLUME_PATH}/${filepathFolder}/.${filepathFile}`;
-	const scrubChunkImagePath = `${folder}/scrub-C${index}.png`;
+	const scrubChunkImagePath = path.join(folder, `scrub-C${index}.png`);
 
 	if (isNaN(index) || index > SCRUB_MAX_CHUNK_INDEX || index < 0)
 		return new Response(undefined, { status: 400 });
@@ -33,8 +73,10 @@ export const GET: APIRoute = async ({
 		fs.mkdirSync(folder);
 	}
 
-	const video = ffmpeg(`${BASE_VOLUME_PATH}/${filepath}.mp4`);
+	if (filepath.substring(filepath.length - 4) !== ".mp4") filepath += ".mp4";
+	const video = ffmpeg(`${BASE_VOLUME_PATH}/${filepath}`);
 
+	console.log(scrubChunkImagePath);
 	// check if screenshot chunk exists and create the thumbnail if not | `scrub-${index}.png`
 	if (!fs.existsSync(scrubChunkImagePath)) {
 		const duration = await new Promise<number>((resolve, reject) =>
@@ -66,7 +108,6 @@ export const GET: APIRoute = async ({
 					)
 					.output(scrubChunkImagePath)
 					.on("end", (end) => {
-						console.log({ CHUNK_START, CHUNK_SIZE, SCRUB_TIMESTAMP_PER_CHUNK });
 						resolve(undefined);
 					})
 					.on("err", (err) => reject(err))
@@ -86,16 +127,6 @@ export const GET: APIRoute = async ({
 			// 	})
 			// 	.on("err", (err) => reject(err)),
 		);
-		// stitch screenshots together horizontally
-		const imagePaths = timestamps?.map?.(
-			(_, i) => `${TMP_FOLDER}/scrub-C${index}-I${i + 1}.png`,
-		);
-		console.log({ imagePaths });
-		// await stitchImagesHorizontally(imagePaths, scrubChunkImagePath);
-		// delete screenshots
-		// for (const imagePath of imagePaths) {
-		// 	fs.rm(imagePath, () => {});
-		// }
 	}
 
 	const arrayBuffer = fs.readFileSync(scrubChunkImagePath);

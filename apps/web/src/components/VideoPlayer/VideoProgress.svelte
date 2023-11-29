@@ -4,7 +4,7 @@
 	import { padNum } from "$lib/padTime";
 	import ScrubImages from "./ScrubImages.svelte";
 
-	export let filepath: string;
+	export let id: string;
 	export let duration: number | undefined;
 	export let video: HTMLVideoElement;
 	export let currentTime = 0;
@@ -146,7 +146,7 @@
 				2}px), 0%)); transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;"
 		>
 			<ScrubImages
-				{filepath}
+				{id}
 				{duration}
 				currentTime={(hoverPercent / 100) * (duration ?? 1)}
 			/>

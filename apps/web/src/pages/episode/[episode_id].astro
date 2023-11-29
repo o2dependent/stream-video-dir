@@ -33,6 +33,11 @@ if (episode?.expand?.season)
 if (episode?.expand?.series)
 	filepath = `${episode?.expand?.series?.pathname}/${filepath}`;
 
+// if the file does not exist redirect back
+if (!fs.existsSync(`${BASE_VOLUME_PATH}/${filepath}`)) {
+	return Astro.redirect(`/series/${episode?.expand?.series?.id ?? ""}`);
+}
+
 try {
 	watchedTimestamp = await pb.collection("watched_timestamps").getFirstListItem(
 		pb.filter(`episode = {:episode_id} && profile = {:profile_id}`, {
@@ -53,11 +58,6 @@ const fullyWatched =
 	watchedTimestamp?.timestamp === watchedTimestamp?.duration;
 startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
 
-// if the file does not exist redirect back
-if (!fs.existsSync(`${BASE_VOLUME_PATH}/${filepath}`)) {
-	return Astro.redirect(`/series/${episode?.expand?.series?.id ?? ""}`);
-}
-
 let nextEpisode: RecordModel | undefined;
 try {
 	nextEpisode = await pb.collection("episodes").getFirstListItem(
@@ -77,13 +77,6 @@ try {
 		transition:persist
 		transition:name="video-container"
 	>
-		<VideoPlayer
-			client:load
-			{episode}
-			filepath={filepath.replace(".mp4", "") ?? ""}
-			{nextEpisode}
-			{startTime}
-			{hostname}
-		/>
+		<VideoPlayer client:load {episode} {nextEpisode} {startTime} {hostname} />
 	</VideoContainer>
 </WatchLayout>

@@ -17,7 +17,6 @@
 	import AutoplayToggle from "./AutoplayToggle.svelte";
 	import type { RecordModel } from "pocketbase";
 
-	export let filepath: string;
 	export let duration: number | undefined = undefined;
 	export let startTime: number | undefined;
 	export let hostname: string;
@@ -121,7 +120,9 @@
 		autoplay
 	>
 		<source
-			src={`/video/${filepath}${startTime ? `#t=${startTime}` : ""}`}
+			src={`/video/stream/episode/${episode?.id}${
+				startTime ? `#t=${startTime}` : ""
+			}`}
 			type="video/mp4"
 		/>
 		<track kind="captions" />
@@ -130,7 +131,7 @@
 	<VideoPlayPausePopup {paused} />
 	<div
 		bind:this={videoTopContainer}
-		class="peer flex justify-between px-3 absolute top-0 left-0 w-full z-20 h-16 bg-gradient-to-b from-black/50 via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
+		class="peer flex justify-between px-3 absolute top-0 left-0 w-full z-40 h-16 bg-gradient-to-b from-black/50 via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
 		class:opacity-100={video?.paused || isHovered}
 		class:-translate-y-full={!(video?.paused || isHovered)}
 	>
@@ -163,12 +164,12 @@
 	<div
 		aria-label="Video controls"
 		id="controls"
-		class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-20 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 peer-hover:opacity-100 peer-hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
+		class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-40 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 peer-hover:opacity-100 peer-hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
 		class:opacity-100={video?.paused || isHovered}
 		class:translate-y-full={!(video?.paused || isHovered)}
 	>
 		<VideoProgress
-			{filepath}
+			id={episode?.id}
 			{durationTime}
 			{duration}
 			bind:currentTime
@@ -202,7 +203,7 @@
 					<p
 						class="hidden sm:block text-base font-bold w-full text-ellipsis whitespace-nowrap overflow-hidden"
 					>
-						{filepath?.split("/")?.at(-1)}
+						{episode?.name ?? "No title found"}
 					</p>
 				</div>
 				<div class="flex justify-end gap-2">

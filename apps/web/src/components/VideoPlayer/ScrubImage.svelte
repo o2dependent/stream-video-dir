@@ -7,11 +7,12 @@
 
 	export let index: number;
 	export let currentTime: number;
-	export let filepath: string;
+	export let id: string;
 	export let CHUNK_SIZE: number;
+	export let type: "episode" | "movie" = "episode";
 
 	let img: HTMLImageElement;
-	const CHUNK_START = index * CHUNK_SIZE;
+	$: CHUNK_START = index * CHUNK_SIZE;
 	$: currentIndex = Math.floor(currentTime / CHUNK_SIZE);
 	$: offsetIndex =
 		currentIndex === index
@@ -32,6 +33,6 @@
 	style="object-position: calc(calc({offsetIndex} / {SCRUB_TIMESTAMP_PER_CHUNK -
 		1}) * 100%);"
 	loading="lazy"
-	src="/video/scrub/{filepath}-{index}.png"
-	alt=""
+	src="/video/scrub/{type}/{id}-{index}.png"
+	alt="Scrub chunk {index}"
 />

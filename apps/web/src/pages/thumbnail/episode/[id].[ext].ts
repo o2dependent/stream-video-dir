@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 import { BASE_VOLUME_PATH } from "$lib/constants";
+import path from "path";
 
 export const GET: APIRoute = async ({
 	request,
@@ -22,18 +23,26 @@ export const GET: APIRoute = async ({
 
 	let filepathFolder = "";
 	if (episode?.expand?.season)
-		filepathFolder = `${episode?.expand?.season?.pathname}/${filepathFolder}`;
+		filepathFolder = path.join(
+			episode?.expand?.season?.pathname,
+			filepathFolder,
+		);
 	if (episode?.expand?.series)
-		filepathFolder = `${episode?.expand?.series?.pathname}/${filepathFolder}`;
+		filepathFolder = path.join(
+			episode?.expand?.series?.pathname,
+			filepathFolder,
+		);
 
-	const filepathFile = episode?.pathname;
+	const filepathFile = episode?.pathname as string;
 
-	const filepath = `${filepathFolder ?? ""}${
-		filepathFolder ? "/" : ""
-	}${filepathFile}`;
+	const filepath = path.join(filepathFolder ?? "", filepathFile);
 
+	const folder = path.join(
+		BASE_VOLUME_PATH,
+		filepathFolder,
+		`.${filepathFile}`,
+	);
 	const ext = params?.ext ?? "";
-	const folder = `${BASE_VOLUME_PATH}/${filepathFolder}/.${filepathFile}`;
 	// if video doesn't exist || ext is not "png" or "gif" return 404
 	if (
 		!["png", "gif"].includes(ext) ||
