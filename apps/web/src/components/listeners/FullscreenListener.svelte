@@ -9,9 +9,10 @@
 
 	onMount(() => {
 		if (typeof window !== "undefined") {
-			if (!fullscreenPersist) removeFullscreen();
+			if (!fullscreenPersist) setTimeout(removeFullscreen, 250);
 
 			_onFullscreenWindowLoad();
+
 			window.addEventListener("fullscreenchange", _onFullscreenChange);
 
 			return () => {

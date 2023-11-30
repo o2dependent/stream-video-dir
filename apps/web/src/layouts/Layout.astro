@@ -24,10 +24,10 @@ const profile = Astro.locals.profile?.name;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<ViewTransitions fallback="swap" />
+		<ViewTransitions fallback="none" />
 	</head>
 	<body class="bg-zinc-950 text-slate-50 flex flex-col">
-		<FullscreenListener {fullscreenPersist} client:load />
+		<FullscreenListener {fullscreenPersist} client:only />
 		<WindowScrollYListener />
 		<Nav client:load {showNav} {hostname} {pathname} {profile} />
 		<main class="w-full h-full flex flex-col">
