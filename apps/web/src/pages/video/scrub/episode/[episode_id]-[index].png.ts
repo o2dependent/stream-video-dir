@@ -7,15 +7,12 @@ import {
 	SCRUB_SCREENSHOT_HEIGHT,
 	SCRUB_SCREENSHOT_WIDTH,
 	SCRUB_TIMESTAMP_PER_CHUNK,
-	TMP_FOLDER,
 } from "$lib/constants";
-import { stitchImagesHorizontally } from "services/image/stitchImagesHorizontally";
 import type { RecordModel } from "pocketbase";
 import path from "path";
 
 export const GET: APIRoute = async ({ request, params, locals }) => {
-	const APP_NAME = import.meta?.env?.APP_NAME ?? "lowky-video";
-	const query = new URL(request.url).searchParams;
+	// const APP_NAME = import.meta?.env?.APP_NAME ?? "lowky-video";
 	const episode_id = params?.episode_id ?? "";
 
 	if (!episode_id)
@@ -76,7 +73,6 @@ export const GET: APIRoute = async ({ request, params, locals }) => {
 	if (filepath.substring(filepath.length - 4) !== ".mp4") filepath += ".mp4";
 	const video = ffmpeg(`${BASE_VOLUME_PATH}/${filepath}`);
 
-	console.log(scrubChunkImagePath);
 	// check if screenshot chunk exists and create the thumbnail if not | `scrub-${index}.png`
 	if (!fs.existsSync(scrubChunkImagePath)) {
 		const duration = await new Promise<number>((resolve, reject) =>

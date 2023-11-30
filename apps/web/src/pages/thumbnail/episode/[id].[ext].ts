@@ -67,7 +67,6 @@ export const GET: APIRoute = async ({
 				video.ffprobe((err, metadata) => {
 					if (err) reject(err);
 					const duration = metadata?.format?.duration ?? 0;
-					console.log({ duration });
 					video
 						.setStartTime(duration * 0.1)
 						.setDuration(8)

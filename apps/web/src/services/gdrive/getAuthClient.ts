@@ -91,7 +91,5 @@ async function listFiles(authClient: OAuth2Client) {
 
 export const getAuthClient = async () => {
 	const authClient = await authorize();
-	// @ts-ignore
-	await listFiles(authClient);
 	return authClient;
 };

@@ -11,10 +11,6 @@ export const volumeBeforeMuted = writable(1);
 export const toggleMute = () => {
 	const m = get(muted);
 	const vb = get(volumeBeforeMuted);
-	console.log({
-		m,
-		vb,
-	});
 	volume.set(m ? vb : 0);
 };
 

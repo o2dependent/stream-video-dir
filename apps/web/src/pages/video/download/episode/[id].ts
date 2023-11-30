@@ -6,7 +6,6 @@ import { downloadFileById } from "services/gdrive/downloadFileById";
 
 export const POST: APIRoute = async ({ request, params, locals }) => {
 	const id = params?.id ?? "";
-	console.log("id", id);
 
 	if (!id)
 		return new Response(JSON.stringify({}), {
@@ -80,7 +79,6 @@ export const POST: APIRoute = async ({ request, params, locals }) => {
 
 	let progressUpdateAvailable = true;
 	const handleProgressData = async (newProgress: number) => {
-		console.log(`newProgress: ${newProgress}, progress: ${progress}`);
 		if (Math.floor(newProgress) <= progress) return;
 		progress = Math.floor(newProgress);
 		await locals.pb.collection("episodes").update(episode.id, {
@@ -102,7 +100,6 @@ export const POST: APIRoute = async ({ request, params, locals }) => {
 			}
 		},
 	);
-	console.log("download finished", id);
 
 	if (progress < 100) {
 		// update episode status
