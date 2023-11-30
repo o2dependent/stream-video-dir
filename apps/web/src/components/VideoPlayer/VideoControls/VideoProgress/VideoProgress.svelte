@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { fade, fly } from "svelte/transition";
 	import { formatTime } from "$lib/formatTime";
 	import { padNum } from "$lib/padTime";
 	import ScrubImages from "./ScrubImages.svelte";
