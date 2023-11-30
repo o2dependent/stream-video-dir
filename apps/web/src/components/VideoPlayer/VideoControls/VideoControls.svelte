@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { fly } from "svelte/transition";
 	import { padNum } from "$lib/padTime";
-	import NextVideoButton from "./NextVideoButton.svelte";
-	import PlayPauseButton from "./PlayPauseButton.svelte";
+	import NextVideoButton from "./Controls/NextVideoButton.svelte";
+	import PlayPauseButton from "./Controls/PlayPauseButton.svelte";
 	import VideoProgress from "./VideoProgress/VideoProgress.svelte";
-	import FullscreenButton from "./FullscreenButton.svelte";
-	import VolumeController from "./VolumeController.svelte";
-	import AutoplayToggle from "./AutoplayToggle.svelte";
+	import FullscreenButton from "./Controls/FullscreenButton.svelte";
+	import VolumeController from "./Controls/Volume/VolumeController.svelte";
+	import AutoplayToggle from "./Controls/AutoplayToggle.svelte";
 	import { formatTime } from "$lib/formatTime";
 	import type { RecordModel } from "pocketbase";
 

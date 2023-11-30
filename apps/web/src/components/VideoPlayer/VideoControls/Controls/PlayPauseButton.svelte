@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Tooltip from "$components/Tooltip.svelte";
-	import PlayPauseIcon from "../PlayPauseIcon.svelte";
+	import PlayPauseIcon from "../../PlayPauseIcon.svelte";
 
 	export let video: HTMLVideoElement;
 	export let containEl: HTMLElement;
