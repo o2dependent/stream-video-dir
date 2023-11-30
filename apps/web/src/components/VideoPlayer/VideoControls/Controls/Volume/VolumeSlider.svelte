@@ -2,10 +2,9 @@
 	import { scale } from "svelte/transition";
 	import Tooltip from "$components/Tooltip.svelte";
 	import { cubicOut } from "svelte/easing";
+	import { volume, muted } from "./volume";
 
 	export let containEl: HTMLElement;
-	export let muted: boolean;
-	export let volume: number;
 </script>
 
 <Tooltip
@@ -29,17 +28,12 @@
 				on:keydown={(e) => {
 					e.stopPropagation();
 				}}
-				on:change={(e) => {
-					if (muted && parseInt(e.currentTarget.value) > 0) {
-						muted = false;
-					}
-				}}
-				bind:value={volume}
+				bind:value={$volume}
 			/>
 			<!-- <div
 						class="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-white rounded-full pointer-events-none"
 					/> -->
-			{#if !muted}
+			{#if !$muted}
 				<div
 					class="absolute top-1/2 -translate-y-1/2 left-0 w-full px-0.5 pointer-events-none origin-left"
 					in:scale={{ duration: 300, start: 0, opacity: 1, easing: cubicOut }}
@@ -52,7 +46,7 @@
 				>
 					<div
 						class="w-full h-1 bg-white rounded-full"
-						style="width: {muted ? 0 : volume * 100}%;"
+						style="width: {$muted ? 0 : $volume * 100}%;"
 					/>
 				</div>
 			{/if}
@@ -60,7 +54,7 @@
 			<div
 				class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-0 w-0 peer-hover:h-2 peer-hover:w-2 peer-focus:h-2
 							peer-focus:w-2 bg-white rounded-full pointer-events-none"
-				style="left: {volume *
+				style="left: {$volume *
 					100}%; transition: height 300ms ease-in-out, width 300ms ease-in-out;"
 			/>
 			<div

@@ -1,16 +1,15 @@
 <script lang="ts">
 	import Tooltip from "$components/Tooltip.svelte";
+	import { muted, toggleMute } from "./volume";
 
 	export let containEl: HTMLElement;
-	export let toggleMute: () => void;
-	export let muted: boolean;
 </script>
 
 <Tooltip
 	className="h-full"
 	pos="top center"
 	{containEl}
-	tip={muted ? "Unmute" : "Mute"}
+	tip={$muted ? "Unmute" : "Mute"}
 	shortcut="m"
 >
 	<button
@@ -31,7 +30,7 @@
 				/>
 				<path
 					fill="currentColor"
-					d={muted
+					d={$muted
 						? "M13.26 3.3a1.1 1.1 0 0 1 1.734.78l.006.114v15.612a1.1 1.1 0 0 1-1.643.957l-.096-.062L6.68 16H4a2 2 0 0 1-1.995-1.85L2 14v-4a2 2 0 0 1 1.85-1.994L4 8h2.68l6.58-4.7Zm4.326 5.872L19 10.586l1.414-1.414a1 1 0 1 1 1.414 1.414L20.414 12l1.414 1.414a1 1 0 0 1-1.414 1.415L19 13.413l-1.414 1.415a1 1 0 0 1-1.414-1.415L17.586 12l-1.414-1.414a1 1 0 1 1 1.414-1.414Z"
 						: "M13.26 3.3a1.1 1.1 0 0 1 1.734.78l.006.114v15.612a1.1 1.1 0 0 1-1.643.957l-.096-.062L6.68 16H4a2 2 0 0 1-1.995-1.85L2 14v-4a2 2 0 0 1 1.85-1.995L4 8h2.68l6.58-4.7Zm6.407 3.483A6.985 6.985 0 0 1 22 12a6.985 6.985 0 0 1-2.333 5.217a1 1 0 1 1-1.334-1.49A4.985 4.985 0 0 0 20 12c0-1.48-.642-2.81-1.667-3.727a1 1 0 1 1 1.334-1.49Zm-2 2.236A3.992 3.992 0 0 1 19 11.999a3.991 3.991 0 0 1-1.333 2.982a1 1 0 0 1-1.422-1.4l.088-.09c.41-.368.667-.899.667-1.491a1.99 1.99 0 0 0-.548-1.376l-.119-.115a1 1 0 1 1 1.334-1.49Z"}
 				/>

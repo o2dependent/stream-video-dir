@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { volume } from "./VideoControls/Controls/Volume/volume.ts";
 	import VideoPlayPausePopup from "./VideoPlayPausePopup.svelte";
 	import VideoEndScreen from "./VideoEndScreen/VideoEndScreen.svelte";
 	import KeyboardControls from "./KeyboardControls.svelte";
@@ -104,6 +105,7 @@
 		bind:paused={$paused}
 		bind:duration={$duration}
 		bind:currentTime={$currentTime}
+		bind:volume={$volume}
 		class="object-contain h-screen w-full"
 		on:dblclick={dblclickFullscreen}
 		on:mousemove={mousemove}
