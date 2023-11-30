@@ -1,4 +1,7 @@
 <script lang="ts">
+	// client:load not enabled for this component
+	// be sure client:load is added before adding client code
+	// if you don't you will be sad
 </script>
 
 <div id="video-container" class="w-full h-full relative">

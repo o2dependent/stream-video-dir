@@ -2,15 +2,21 @@
 	import {
 		_onFullscreenChange,
 		_onFullscreenWindowLoad,
+		removeFullscreen,
 	} from "$stores/isFullscreen";
 	import { onMount } from "svelte";
+	export let fullscreenPersist: boolean = false;
 
 	onMount(() => {
-		_onFullscreenWindowLoad();
-		window.addEventListener("fullscreenchange", _onFullscreenChange);
+		if (typeof window !== "undefined") {
+			if (!fullscreenPersist) removeFullscreen();
 
-		return () => {
-			window.removeEventListener("fullscreenchange", _onFullscreenChange);
-		};
+			_onFullscreenWindowLoad();
+			window.addEventListener("fullscreenchange", _onFullscreenChange);
+
+			return () => {
+				window.removeEventListener("fullscreenchange", _onFullscreenChange);
+			};
+		}
 	});
 </script>

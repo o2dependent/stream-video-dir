@@ -7,6 +7,10 @@ export const toggleFullscreen = () => {
 	else document.querySelector("html")?.requestFullscreen();
 };
 
+export const removeFullscreen = () => {
+	if (document.fullscreenElement) document.exitFullscreen();
+};
+
 const handleChange = () => {
 	const newIsFullscreen = !!document.fullscreenElement;
 	isFullscreen.set(newIsFullscreen);

@@ -5,9 +5,11 @@ import WindowScrollYListener from "$components/listeners/WindowScrollYListener.s
 import { ViewTransitions } from "astro:transitions";
 interface Props {
 	title: string;
+	showNav?: boolean;
+	fullscreenPersist?: boolean;
 }
 
-const { title } = Astro.props;
+const { title, showNav, fullscreenPersist } = Astro.props;
 const hostname = Astro.url.hostname;
 const pathname = Astro.url.pathname;
 const profile = Astro.locals.profile?.name;
@@ -22,19 +24,12 @@ const profile = Astro.locals.profile?.name;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<ViewTransitions />
+		<ViewTransitions fallback="swap" />
 	</head>
 	<body class="bg-zinc-950 text-slate-50 flex flex-col">
-		<FullscreenListener client:load />
-		<WindowScrollYListener client:load />
-		<Nav
-			transition:persist
-			transition:name="watch-nav"
-			client:load
-			{hostname}
-			{pathname}
-			{profile}
-		/>
+		<FullscreenListener {fullscreenPersist} client:load />
+		<WindowScrollYListener />
+		<Nav client:load {showNav} {hostname} {pathname} {profile} />
 		<main class="w-full h-full flex flex-col">
 			<slot />
 		</main>

@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { isFullscreen } from "$stores/isFullscreen";
-	import { windowScrollY } from "$stores/windowScrollY";
 	import { io } from "socket.io-client";
 	import { onMount } from "svelte";
 	export let hostname: string;
 	export let pathname: string;
 	export let profile: string | undefined;
+	export let showNav: boolean = true;
 
 	let socket: ReturnType<typeof io>;
 
@@ -55,8 +54,11 @@
 	};
 </script>
 
-<div id="nav-padding" class="h-12 w-full" class:hidden={$isFullscreen} />
-<div class="z-20 top-0 left-0 w-full fixed h-12 overflow-hidden">
+<div id="nav-padding" class="h-12 w-full" class:hidden={!showNav} />
+<div
+	class="z-20 top-0 left-0 w-full fixed h-12 overflow-hidden"
+	class:top-full={!showNav}
+>
 	<div
 		class="w-full bg-slate-950 h-12 overflow-hidden flex items-center origin-top duration-300"
 	>
