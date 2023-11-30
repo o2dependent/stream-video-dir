@@ -2,17 +2,14 @@
 import VideoPlayer from "$components/VideoPlayer/VideoPlayer.svelte";
 import { BASE_VOLUME_PATH } from "$lib/constants";
 import fs from "fs";
-import WatchLayout from "$layouts/WatchLayout.astro";
+import Layout from "$layouts/Layout.astro";
 import VideoContainer from "$components/VideoContainer.svelte";
 import type { RecordModel } from "pocketbase";
 
 const { episode_id } = Astro.params;
 if (!episode_id) return Astro.redirect(`/series`);
 
-const hostname = Astro.url.hostname;
-
 let filepath: string;
-let startTime = 0;
 let watchedTimestamp;
 
 const pb = Astro.locals.pb;
@@ -26,7 +23,6 @@ try {
 	return Astro.redirect(`/series`);
 }
 
-console.log(episode);
 filepath = episode?.pathname;
 if (episode?.expand?.season)
 	filepath = `${episode?.expand?.season?.pathname}/${filepath}`;
@@ -53,10 +49,6 @@ try {
 	});
 	console.error(error);
 }
-const fullyWatched =
-	watchedTimestamp?.timestamp &&
-	watchedTimestamp?.timestamp === watchedTimestamp?.duration;
-startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
 
 let nextEpisode: RecordModel | undefined;
 try {
@@ -71,12 +63,8 @@ try {
 }
 ---
 
-<WatchLayout title="Welcome to Astro.">
-	<VideoContainer
-		slot="video-player"
-		transition:persist
-		transition:name="video-container"
-	>
-		<VideoPlayer client:load {episode} {nextEpisode} {startTime} {hostname} />
+<Layout fullscreenPersist title={episode?.name} showNav={false}>
+	<VideoContainer client:load>
+		<VideoPlayer client:load {episode} {nextEpisode} {watchedTimestamp} />
 	</VideoContainer>
-</WatchLayout>
+</Layout>

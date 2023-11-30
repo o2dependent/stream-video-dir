@@ -2,7 +2,6 @@
 	import { fly } from "svelte/transition";
 	import { formatTime } from "./../../lib/formatTime";
 	import { padNum } from "./../../lib/padTime";
-	import { io } from "socket.io-client";
 	import NextVideoButton from "./NextVideoButton.svelte";
 	import PlayPauseButton from "./PlayPauseButton.svelte";
 	import VideoProgress from "./VideoProgress.svelte";
@@ -15,11 +14,11 @@
 	import { toggleFullscreen } from "$stores/isFullscreen";
 	import Tooltip from "$components/Tooltip.svelte";
 	import AutoplayToggle from "./AutoplayToggle.svelte";
-	import type { RecordModel } from "pocketbase";
+	import PocketBase, { type RecordModel } from "pocketbase";
+	import { onMount } from "svelte";
 
 	export let duration: number | undefined = undefined;
-	export let startTime: number | undefined;
-	export let hostname: string;
+	export let watchedTimestamp: RecordModel | undefined;
 	export let nextEpisode: RecordModel | undefined;
 	export let episode: RecordModel;
 
@@ -28,7 +27,12 @@
 	let videoTopContainer: HTMLDivElement;
 	let isEnded = false;
 	let paused = true;
-	let currentTime: number = startTime ?? 0;
+	$: fullyWatched =
+		watchedTimestamp?.timestamp &&
+		watchedTimestamp?.timestamp === watchedTimestamp?.duration;
+	$: startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
+
+	let currentTime: number = watchedTimestamp?.timestamp ?? 0;
 	$: {
 		const isVideoLoaded = video?.readyState === 4;
 		if (isVideoLoaded) {
@@ -49,10 +53,23 @@
 	$: curTime = formatTime(currentTime);
 	$: durationTime = formatTime(duration ?? 0);
 
-	$: socket = io(`${hostname}:5432`, {
-		withCredentials: true,
+	let pb: PocketBase;
+
+	onMount(() => {
+		pb = new PocketBase("http://127.0.0.1:8090");
 	});
-	const timeupdate = (e: Event) => {
+
+	let lastTime = currentTime;
+	const updateTimestamp = async (time: number) => {
+		if (watchedTimestamp && Math.floor(time) != lastTime) {
+			lastTime = Math.floor(time);
+			await pb.collection("watched_timestamps").update(watchedTimestamp?.id, {
+				timestamp: lastTime,
+			});
+		}
+	};
+
+	const timeupdate = async (e: Event) => {
 		const target = e.currentTarget as HTMLVideoElement;
 		if (isEnded && target.currentTime !== target.duration) {
 			isEnded = false;
@@ -61,12 +78,9 @@
 		curVideoPercent.set(
 			((target?.currentTime ?? 0) / (target?.duration ?? 1)) * 100,
 		);
-		socket.emit("timeupdate", {
-			episode: episode.id,
-			time: target.currentTime,
-			duration: video?.duration ?? 0,
-			log: false,
-		});
+		if (pb) {
+			updateTimestamp(target?.currentTime);
+		}
 	};
 	const ended = (e: Event) => {};
 

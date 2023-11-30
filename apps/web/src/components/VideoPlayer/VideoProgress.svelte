@@ -24,11 +24,6 @@
 			changingCurrentTime = currentTime;
 		}
 	}
-	let curTime = formatTime(currentTime);
-	$: {
-		if (isChanging) curTime = formatTime(changingCurrentTime);
-		else curTime = formatTime(currentTime);
-	}
 
 	const progressbarMousemove = (e: MouseEvent) => {
 		const rect = container?.getBoundingClientRect();
@@ -120,12 +115,12 @@
 		aria-valuenow={isChanging ? changingCurrentTime : currentTime}
 	>
 		<div
-			class="h-full bg-red-500 transition-all origin-bottom"
+			class="h-full bg-red-500 origin-bottom"
 			class:duration-0={isChanging}
 			style={`width: ${
 				((isChanging ? changingCurrentTime : currentTime) / (duration ?? 1)) *
 				100
-			}%`}
+			}%; transition-property: height; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms;`}
 			aria-hidden="true"
 		/>
 		<div
