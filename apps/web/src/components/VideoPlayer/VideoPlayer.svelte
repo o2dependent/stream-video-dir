@@ -14,16 +14,19 @@
 	export let nextEpisode: RecordModel | undefined;
 	export let episode: RecordModel;
 
+	let pb: PocketBase;
 	let video: HTMLVideoElement;
-	let videoTopContainer: HTMLDivElement;
 	let isEnded = false;
 	let paused = true;
+	let currentTime: number = watchedTimestamp?.timestamp ?? 0;
+	let isHovered = false;
+	let lastTime = currentTime;
+
 	$: fullyWatched =
 		watchedTimestamp?.timestamp &&
 		watchedTimestamp?.timestamp === watchedTimestamp?.duration;
 	$: startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
 
-	let currentTime: number = watchedTimestamp?.timestamp ?? 0;
 	$: {
 		const isVideoLoaded = video?.readyState === 4;
 		if (isVideoLoaded) {
@@ -34,20 +37,17 @@
 	$: autoplayNext =
 		typeof window !== "undefined" &&
 		window.localStorage.getItem("autoplay") === "true";
+
 	$: {
 		if (typeof window !== "undefined") {
 			window.localStorage.setItem("autoplay", autoplayNext.toString());
 		}
 	}
-	let isHovered = false;
-
-	let pb: PocketBase;
 
 	onMount(() => {
 		pb = new PocketBase("http://127.0.0.1:8090");
 	});
 
-	let lastTime = currentTime;
 	const updateTimestamp = async (time: number) => {
 		if (watchedTimestamp && Math.floor(time) != lastTime) {
 			lastTime = Math.floor(time);
@@ -71,8 +71,10 @@
 			updateTimestamp(target?.currentTime);
 		}
 	};
+
 	const ended = (e: Event) => {};
 
+	let hoverTimeout: NodeJS.Timeout;
 	const tempShowControls = () => {
 		clearTimeout(hoverTimeout);
 		isHovered = true;
@@ -81,7 +83,6 @@
 		}, 2000);
 	};
 
-	let hoverTimeout: NodeJS.Timeout;
 	const mousemove = (e: MouseEvent) => {
 		tempShowControls();
 	};
@@ -105,7 +106,7 @@
 </script>
 
 <div
-	class="video-player relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
+	class="relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
 	class:cursor-none={!(paused || isHovered)}
 >
 	<KeyboardControls {video} {tempShowControls} />
@@ -147,12 +148,3 @@
 
 	<VideoEndScreen {duration} {nextEpisode} {video} {autoplayNext} />
 </div>
-
-<style lang="postcss">
-	:global(html.fullscreen .video-player) {
-		@apply h-screen;
-	}
-	:global(html:not(.fullscreen) .video-player .fullscreen-title-box) {
-		@apply hidden;
-	}
-</style>
