@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { navigate } from "astro/transitions/router";
 	import type { RecordModel } from "pocketbase";
+	import { duration, currentTime } from "../video";
 
-	export let video: HTMLVideoElement;
 	export let autoplayNext: boolean;
 	export let nextEpisode: RecordModel | undefined;
-	export let duration: number | undefined;
 
-	$: videoEnded = !!(video?.currentTime && video?.currentTime === duration);
+	$: videoEnded = !!($currentTime && $currentTime === $duration);
 	let autoplayTimeout: NodeJS.Timeout | undefined;
 	let autoplayCountdownInterval: NodeJS.Timeout | undefined;
 	let autoplayCountdown = 5;
@@ -27,7 +26,6 @@
 			!autoplayTimeout &&
 			!autoplayCountdownInterval
 		) {
-			console.log("autoplaying in 5 seconds");
 			autoplayCountdown = 5;
 			autoplayCountdownInterval = setInterval(() => {
 				autoplayCountdown = autoplayCountdown - 1;

@@ -2,15 +2,11 @@
 	import { type RecordModel } from "pocketbase";
 	import DownloadEpisodeItem from "./DownloadEpisodeItem.svelte";
 	import ThumbnailImage from "$components/ThumbnailImage.svelte";
-	import { onMount } from "svelte";
 
 	export let episode: RecordModel | null;
 
 	let isHovering = false;
 	let watched_timestamp = episode?.expand?.["watched_timestamps(episode)"]?.[0];
-	onMount(() => {
-		console.log({ watched_timestamp });
-	});
 </script>
 
 {#if episode?.id}

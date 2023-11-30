@@ -2,38 +2,29 @@
 	import VideoPlayPausePopup from "./VideoPlayPausePopup.svelte";
 	import VideoEndScreen from "./VideoEndScreen/VideoEndScreen.svelte";
 	import KeyboardControls from "./KeyboardControls.svelte";
-	import { curVideoPercent } from "$stores/watch/curVideoPercent";
 	import { toggleFullscreen } from "$stores/isFullscreen";
 	import PocketBase, { type RecordModel } from "pocketbase";
 	import { onMount } from "svelte";
 	import VideoControls from "./VideoControls/VideoControls.svelte";
 	import VideoTop from "./VideoTop/VideoTop.svelte";
+	import { currentTime, duration, paused, video } from "./video";
 
-	export let duration: number | undefined = undefined;
 	export let watchedTimestamp: RecordModel | undefined;
 	export let nextEpisode: RecordModel | undefined;
 	export let episode: RecordModel;
 
 	let pb: PocketBase;
-	let video: HTMLVideoElement;
 	let isEnded = false;
-	let paused = true;
-	let currentTime: number = watchedTimestamp?.timestamp ?? 0;
+	$: $currentTime = watchedTimestamp?.timestamp ?? 0;
 	let isHovered = false;
-	let lastTime = currentTime;
+	let lastTime = $currentTime;
+	$: $duration = watchedTimestamp?.duration ?? 0;
 
 	$: fullyWatched =
 		watchedTimestamp?.timestamp &&
 		watchedTimestamp?.timestamp === watchedTimestamp?.duration;
 	$: startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
 
-	$: {
-		const isVideoLoaded = video?.readyState === 4;
-		if (isVideoLoaded) {
-			currentTime = video?.currentTime ?? 0;
-			duration = video?.duration ?? 0;
-		}
-	}
 	$: autoplayNext =
 		typeof window !== "undefined" &&
 		window.localStorage.getItem("autoplay") === "true";
@@ -53,7 +44,7 @@
 			lastTime = Math.floor(time);
 			await pb.collection("watched_timestamps").update(watchedTimestamp?.id, {
 				timestamp: lastTime,
-				duration: video?.duration ?? 0,
+				duration: $video?.duration ?? 0,
 			});
 		}
 	};
@@ -64,9 +55,6 @@
 			isEnded = false;
 			return;
 		}
-		curVideoPercent.set(
-			((target?.currentTime ?? 0) / (target?.duration ?? 1)) * 100,
-		);
 		if (pb) {
 			updateTimestamp(target?.currentTime);
 		}
@@ -91,10 +79,10 @@
 	const togglePause = () => {
 		clearTimeout(dblClickTimeout);
 		dblClickTimeout = setTimeout(() => {
-			if (video?.paused) {
-				video?.play?.();
+			if ($paused) {
+				$video?.play?.();
 			} else {
-				video?.pause?.();
+				$video?.pause?.();
 			}
 		}, 300);
 	};
@@ -107,21 +95,22 @@
 
 <div
 	class="relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
-	class:cursor-none={!(paused || isHovered)}
+	class:cursor-none={!($paused || isHovered)}
 >
-	<KeyboardControls {video} {tempShowControls} />
+	<KeyboardControls {tempShowControls} />
 
 	<video
-		bind:this={video}
-		bind:paused
-		bind:currentTime
+		bind:this={$video}
+		bind:paused={$paused}
+		bind:duration={$duration}
+		bind:currentTime={$currentTime}
 		class="object-contain h-screen w-full"
 		on:dblclick={dblclickFullscreen}
 		on:mousemove={mousemove}
 		on:timeupdate={timeupdate}
 		on:ended={ended}
 		on:click={togglePause}
-		on:loadedmetadata={() => document?.hasFocus() && video?.play?.()}
+		on:loadedmetadata={() => document?.hasFocus() && $video?.play?.()}
 	>
 		<source
 			src={`/video/stream/episode/${episode?.id}${
@@ -132,19 +121,11 @@
 		<track kind="captions" />
 		Your browser does not support the video tag.
 	</video>
-	<VideoPlayPausePopup {paused} />
+	<VideoPlayPausePopup />
 
-	<VideoTop bind:isHovered {episode} {video} />
+	<VideoTop bind:isHovered {episode} />
 
-	<VideoControls
-		bind:currentTime
-		bind:autoplayNext
-		bind:isHovered
-		{video}
-		{duration}
-		{episode}
-		{nextEpisode}
-	/>
+	<VideoControls bind:autoplayNext bind:isHovered {episode} {nextEpisode} />
 
-	<VideoEndScreen {duration} {nextEpisode} {video} {autoplayNext} />
+	<VideoEndScreen {nextEpisode} {autoplayNext} />
 </div>

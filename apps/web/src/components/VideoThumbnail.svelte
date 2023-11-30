@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { curVideoPercent } from "$stores/watch/curVideoPercent";
 	import type { RecordModel } from "pocketbase";
 	import ThumbnailImage from "./ThumbnailImage.svelte";
 
@@ -9,9 +8,7 @@
 	export let isCurrentVideo: boolean = false;
 	export let startTime: number | undefined = undefined;
 
-	$: itemPercent = isCurrentVideo
-		? $curVideoPercent
-		: ((timestamp ?? 0) / (duration ?? 1)) * 100;
+	$: itemPercent = ((timestamp ?? 0) / (duration ?? 1)) * 100;
 </script>
 
 {#if episode && episode?.id}

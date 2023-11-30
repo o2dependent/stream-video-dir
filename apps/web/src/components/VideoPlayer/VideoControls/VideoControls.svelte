@@ -9,44 +9,36 @@
 	import AutoplayToggle from "./Controls/AutoplayToggle.svelte";
 	import { formatTime } from "$lib/formatTime";
 	import type { RecordModel } from "pocketbase";
+	import { currentTime, duration, paused } from "$components/VideoPlayer/video";
 
-	export let video: HTMLVideoElement;
 	export let isHovered: boolean;
 	export let episode: RecordModel;
 	export let nextEpisode: RecordModel | undefined;
-	export let duration: number | undefined;
-	export let currentTime: number;
 	export let autoplayNext: boolean;
 
 	let controlsContainer: HTMLDivElement;
 
-	$: curTime = formatTime(currentTime);
-	$: durationTime = formatTime(duration ?? 0);
+	$: curTime = formatTime($currentTime);
+	$: durationTime = formatTime($duration ?? 0);
 </script>
 
 <div
 	aria-label="Video controls"
 	id="controls"
 	class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-40 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 peer-hover:opacity-100 peer-hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
-	class:opacity-100={video?.paused || isHovered}
-	class:translate-y-full={!(video?.paused || isHovered)}
+	class:opacity-100={$paused || isHovered}
+	class:translate-y-full={!($paused || isHovered)}
 >
-	<VideoProgress
-		id={episode?.id}
-		{durationTime}
-		{duration}
-		{video}
-		bind:currentTime
-	/>
+	<VideoProgress id={episode?.id} {durationTime} />
 	<div
 		bind:this={controlsContainer}
 		class="flex flex-col w-full flex-grow h-full relative"
 	>
 		<div class="flex justify-betweens h-full w-full">
 			<div class="h-full w-full flex gap-2 items-center">
-				<PlayPauseButton {video} containEl={controlsContainer} />
+				<PlayPauseButton containEl={controlsContainer} />
 
-				<VolumeController {video} containEl={controlsContainer} />
+				<VolumeController containEl={controlsContainer} />
 
 				<p
 					class="flex justify-center items-center h-full w-fit whitespace-nowrap"
@@ -77,12 +69,12 @@
 		</div>
 	</div>
 </div>
-{#if nextEpisode && nextEpisode?.id && (currentTime / video?.duration) * 100 >= 99.5}
+{#if nextEpisode && nextEpisode?.id && ($currentTime / $duration) * 100 >= 99.5}
 	<div
 		in:fly={{ y: 16, duration: 300 }}
 		out:fly={{ y: -16, duration: 300 }}
-		class:-translate-y-16={video?.paused || isHovered}
-		class:translate-y-0={!(video?.paused || isHovered)}
+		class:-translate-y-16={$paused || isHovered}
+		class:translate-y-0={!($paused || isHovered)}
 		class="absolute peer-hover:-translate-y-16 h-8 right-4 bottom-4 transition-all duration-300"
 	>
 		<a

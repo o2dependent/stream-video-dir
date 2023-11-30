@@ -15,6 +15,7 @@
 	export let tip: string | true;
 	export let pos: Positions = "top center";
 	export let containEl: HTMLElement | undefined = undefined;
+	export let shortcut: string | undefined = undefined;
 
 	let tooltipEl: HTMLElement;
 	let wrapperEl: HTMLElement;
@@ -113,6 +114,11 @@
 						class="bg-black/50 border border-white/10 rounded shadow-md text-white px-1 py-0.5"
 					>
 						{tip}
+						{#if shortcut}
+							<span>
+								({shortcut})
+							</span>
+						{/if}
 					</p>
 				</slot>
 			</div>

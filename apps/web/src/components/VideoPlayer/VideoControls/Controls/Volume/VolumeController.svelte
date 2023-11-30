@@ -1,8 +1,8 @@
 <script lang="ts">
 	import VolumeSlider from "./VolumeSlider.svelte";
 	import MuteButton from "./MuteButton.svelte";
+	import { video } from "$components/VideoPlayer/video";
 
-	export let video: HTMLVideoElement;
 	export let containEl: HTMLElement;
 
 	let volume = 1;
@@ -10,23 +10,23 @@
 	let muted = volume <= 0;
 
 	const toggleMute = () => {
-		if (video) {
+		if ($video) {
 			muted = !muted;
-			if (muted) mutedVolume = video.volume;
+			if (muted) mutedVolume = $video.volume;
 			volume = muted ? 0 : mutedVolume;
 		}
 	};
 
 	$: {
-		if (video) {
+		if ($video) {
 			if (volume <= 0) {
-				video.muted = true;
+				$video.muted = true;
 				muted = true;
 			} else {
-				video.muted = false;
+				$video.muted = false;
 				muted = false;
 			}
-			video.volume = volume;
+			$video.volume = volume;
 			// Cookie.set("volume", `${volume}`);
 		}
 	}

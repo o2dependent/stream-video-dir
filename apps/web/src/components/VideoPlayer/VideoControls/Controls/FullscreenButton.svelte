@@ -6,10 +6,11 @@
 </script>
 
 <Tooltip
+	{containEl}
 	className="aspect-square"
 	tip="{$isFullscreen ? 'Exit ' : ''}Fullscreen"
 	pos="top center"
-	{containEl}
+	shortcut="f"
 >
 	<button
 		id="fullscreen"

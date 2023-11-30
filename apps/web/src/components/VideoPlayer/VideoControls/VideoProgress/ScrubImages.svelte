@@ -1,12 +1,12 @@
 <script lang="ts">
+	import { duration } from "$components/VideoPlayer/video";
 	import { SCRUB_MAX_CHUNK_INDEX } from "$lib/constants";
 	import ScrubImage from "./ScrubImage.svelte";
 
-	export let duration: number | undefined;
 	export let currentTime: number;
 	export let id: string;
 
-	$: CHUNK_SIZE = ((duration ?? 0) + 1) / SCRUB_MAX_CHUNK_INDEX;
+	$: CHUNK_SIZE = (($duration ?? 0) + 1) / SCRUB_MAX_CHUNK_INDEX;
 </script>
 
 <div

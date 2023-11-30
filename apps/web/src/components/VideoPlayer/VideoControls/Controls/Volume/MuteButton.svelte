@@ -11,6 +11,7 @@
 	pos="top center"
 	{containEl}
 	tip={muted ? "Unmute" : "Mute"}
+	shortcut="m"
 >
 	<button
 		on:click={toggleMute}

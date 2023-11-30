@@ -2,13 +2,12 @@
 	import { fade } from "svelte/transition";
 	import { scale } from "svelte/transition";
 	import PlayPauseIcon from "./PlayPauseIcon.svelte";
-
-	export let paused: boolean;
+	import { paused } from "./video";
 
 	let showIcon = false;
 	let showIconTimeout: NodeJS.Timeout;
 	$: {
-		if (typeof paused === "boolean") {
+		if (typeof $paused === "boolean") {
 			showIcon = false;
 			clearTimeout(showIconTimeout);
 			showIcon = true;
@@ -34,7 +33,7 @@
 		in:scale={{ duration: 100, delay: 100, opacity: 0 }}
 		out:fade={{ duration: 100, delay: 100 }}
 		class="flex flex-col justify-center items-center absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"
-		class:paused={!paused}
+		class:paused={!$paused}
 	>
 		<PlayPauseIcon className="rounded-full !w-32 !h-32 flex" />
 	</div>

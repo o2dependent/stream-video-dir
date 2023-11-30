@@ -2,11 +2,9 @@
 	import { formatTime } from "$lib/formatTime";
 	import { padNum } from "$lib/padTime";
 	import ScrubImages from "./ScrubImages.svelte";
+	import { currentTime, duration, video } from "$components/VideoPlayer/video";
 
 	export let id: string;
-	export let duration: number | undefined;
-	export let video: HTMLVideoElement;
-	export let currentTime = 0;
 	export let durationTime: {
 		hours: number;
 		minutes: number;
@@ -17,10 +15,10 @@
 
 	let isChanging = false;
 	let isChangingPaused = false;
-	let changingCurrentTime = currentTime;
+	let changingCurrentTime = $currentTime;
 	$: {
 		if (!isChanging) {
-			changingCurrentTime = currentTime;
+			changingCurrentTime = $currentTime;
 		}
 	}
 
@@ -29,19 +27,19 @@
 		const x = e.clientX - rect.left;
 		const width = container.clientWidth;
 		const percent = x / width;
-		changingCurrentTime = percent * (duration ?? 1);
+		changingCurrentTime = percent * ($duration ?? 1);
 	};
 	const progressbarMousedown = (e: MouseEvent) => {
 		isChanging = true;
-		isChangingPaused = video.paused;
+		isChangingPaused = $video.paused;
 		if (!isChangingPaused) {
-			video.pause();
+			$video.pause();
 		}
 		const rect = container?.getBoundingClientRect();
 		const x = e.clientX - rect.left;
 		const width = container.clientWidth;
 		const percent = x / width;
-		changingCurrentTime = percent * (duration ?? 1);
+		changingCurrentTime = percent * ($duration ?? 1);
 		window.addEventListener("mousemove", progressbarMousemove);
 		window.addEventListener("mouseup", progressbarMouseup);
 	};
@@ -49,26 +47,27 @@
 	const progressbarMouseup = (e: MouseEvent) => {
 		isChanging = false;
 		if (!isChangingPaused) {
-			video.play();
+			$video.play();
 			isChangingPaused = false;
 		}
-		currentTime = changingCurrentTime;
-		video.currentTime = changingCurrentTime;
+		$currentTime = changingCurrentTime;
+		$video.currentTime = changingCurrentTime;
 		window.removeEventListener("mousemove", progressbarMousemove);
 		window.removeEventListener("mouseup", progressbarMouseup);
 	};
 
 	let hoverTimestamp: HTMLParagraphElement;
 	let isHovered = false;
-	let hoverTime = formatTime(currentTime);
+	let hoverTime = formatTime($currentTime);
 	let hoverPercent =
-		((isChanging ? changingCurrentTime : currentTime) / (duration ?? 1)) * 100;
+		((isChanging ? changingCurrentTime : $currentTime) / ($duration ?? 1)) *
+		100;
 	$: {
 		if (!isHovered) {
 			hoverPercent =
-				((isChanging ? changingCurrentTime : currentTime) / (duration ?? 1)) *
+				((isChanging ? changingCurrentTime : $currentTime) / ($duration ?? 1)) *
 				100;
-			hoverTime = formatTime(currentTime);
+			hoverTime = formatTime($currentTime);
 		}
 	}
 	const hoverThumbMousemove = (e: MouseEvent) => {
@@ -77,7 +76,7 @@
 		const width = container.clientWidth;
 		const percent = x / width;
 		hoverPercent = percent * 100;
-		hoverTime = formatTime((duration ?? 0) * percent);
+		hoverTime = formatTime(($duration ?? 0) * percent);
 	};
 	const progressbarMouseenter = () => {
 		isHovered = true;
@@ -110,14 +109,14 @@
 		class:duration-0={isChanging}
 		role="progressbar"
 		aria-valuemin={0}
-		aria-valuemax={duration ?? 1}
-		aria-valuenow={isChanging ? changingCurrentTime : currentTime}
+		aria-valuemax={$duration ?? 1}
+		aria-valuenow={isChanging ? changingCurrentTime : $currentTime}
 	>
 		<div
 			class="h-full bg-red-500 origin-bottom"
 			class:duration-0={isChanging}
 			style={`width: ${
-				((isChanging ? changingCurrentTime : currentTime) / (duration ?? 1)) *
+				((isChanging ? changingCurrentTime : $currentTime) / ($duration ?? 1)) *
 				100
 			}%; transition-property: height; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms;`}
 			aria-hidden="true"
@@ -139,11 +138,7 @@
 				0}px),max(calc({hoverPercent}% - {(hoverTimestamp?.clientWidth ?? 0) /
 				2}px), 0%)); transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;"
 		>
-			<ScrubImages
-				{id}
-				{duration}
-				currentTime={(hoverPercent / 100) * (duration ?? 1)}
-			/>
+			<ScrubImages {id} currentTime={(hoverPercent / 100) * ($duration ?? 1)} />
 			<p
 				class="w-fit select-none bg-black/50 text-white px-1 py-0.5 rounded whitespace-nowrap shadow-md"
 			>

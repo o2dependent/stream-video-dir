@@ -4,15 +4,11 @@
 	import EndScreenLogic from "./EndScreenLogic.svelte";
 
 	export let autoplayNext: boolean;
-	export let video: HTMLVideoElement;
-	export let duration: number | undefined;
 	export let nextEpisode: RecordModel | undefined;
 </script>
 
 <EndScreenLogic
 	{autoplayNext}
-	{video}
-	{duration}
 	{nextEpisode}
 	let:videoEnded
 	let:autoplayCancelled
