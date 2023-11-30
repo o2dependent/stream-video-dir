@@ -1,19 +1,52 @@
 <script lang="ts">
 	import { type RecordModel } from "pocketbase";
-	import DownloadButton from "./DownloadButton.svelte";
+	import DownloadEpisodeItem from "./DownloadEpisodeItem.svelte";
+	import ThumbnailImage from "$components/ThumbnailImage.svelte";
+	import { onMount } from "svelte";
 
 	export let episode: RecordModel | null;
+
+	let isHovering = false;
+	let watched_timestamp = episode?.expand?.["watched_timestamps(episode)"]?.[0];
+	onMount(() => {
+		console.log({ watched_timestamp });
+	});
 </script>
 
 {#if episode?.id}
 	{#if episode?.downloaded}
 		<a
+			on:mouseenter={() => (isHovering = true)}
+			on:mouseleave={() => (isHovering = false)}
 			href={`/episode/${episode?.id}`}
-			class="p-4 bg-neutral-700/0 hover:bg-neutral-700/5 opacity-90 hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75"
+			class="bg-neutral-700/0 hover:bg-neutral-700/5 opacity-90 hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75 flex"
 		>
-			<h3 class="text-lg font-semibold">{episode?.name}</h3>
+			<div class="h-28 aspect-video">
+				<ThumbnailImage
+					id={episode?.id}
+					name={episode?.name}
+					type="episode"
+					parentListeners
+					bind:isHovering
+				/>
+			</div>
+			<div class="flex flex-col h-full w-full">
+				<div class="flex-grow px-2 py-1">
+					<h3 class="text-lg font-semibold">{episode?.name}</h3>
+				</div>
+				<div class="w-full h-1 overflow-hidden rounded-full bg-neutral-700">
+					<div
+						class="bg-green-500 h-full"
+						style="width: {watched_timestamp?.duration
+							? ((watched_timestamp?.timestamp ?? 0) /
+									(watched_timestamp?.duration ?? 1)) *
+							  100
+							: 0}%"
+					></div>
+				</div>
+			</div>
 		</a>
 	{:else}
-		<DownloadButton {episode} />
+		<DownloadEpisodeItem {episode} />
 	{/if}
 {/if}

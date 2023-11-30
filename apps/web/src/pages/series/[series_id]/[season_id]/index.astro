@@ -1,9 +1,6 @@
 ---
 import Layout from "$layouts/Layout.astro";
-import { TMP_FOLDER } from "$lib/constants";
-import DownloadButton from "./_components/DownloadButton.svelte";
 import type { RecordModel } from "pocketbase";
-import { readFileSync, existsSync } from "fs";
 import EpisodeList from "./_components/EpisodeList.svelte";
 
 const { series_id, season_id } = Astro.params;
@@ -34,6 +31,7 @@ try {
 	episodes = await Astro.locals.pb.collection("episodes").getFullList({
 		filter: `season = "${season_id}"`,
 		sort: "+episode_index",
+		expand: "watched_timestamps(episode)",
 	});
 } catch (error) {
 	Astro.redirect("/series");
