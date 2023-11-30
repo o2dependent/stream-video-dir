@@ -2,13 +2,15 @@
 	export let id: string;
 	export let type: "episode" | "movie" = "episode";
 	export let name: string;
-
-	let isHovering = false;
+	export let isHovering = false;
+	export let parentListeners: boolean = false;
 
 	const mouseenter = () => {
+		if (parentListeners) return;
 		isHovering = true;
 	};
 	const mouseleave = () => {
+		if (parentListeners) return;
 		isHovering = false;
 	};
 </script>
