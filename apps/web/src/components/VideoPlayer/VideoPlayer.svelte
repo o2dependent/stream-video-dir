@@ -65,6 +65,7 @@
 			lastTime = Math.floor(time);
 			await pb.collection("watched_timestamps").update(watchedTimestamp?.id, {
 				timestamp: lastTime,
+				duration: video?.duration ?? 0,
 			});
 		}
 	};
