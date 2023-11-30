@@ -2,7 +2,6 @@
 	import { fade } from "svelte/transition";
 	import { scale } from "svelte/transition";
 	import PlayPauseIcon from "./PlayPauseIcon.svelte";
-	import { quintIn, quintOut } from "svelte/easing";
 
 	export let paused: boolean;
 

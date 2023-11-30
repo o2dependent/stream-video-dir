@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { formatTime } from "./../../lib/formatTime";
 	import VideoPlayPausePopup from "./VideoPlayPausePopup.svelte";
 	import VideoEndScreen from "./VideoEndScreen/VideoEndScreen.svelte";
 	import KeyboardControls from "./KeyboardControls.svelte";
 	import { curVideoPercent } from "$stores/watch/curVideoPercent";
 	import { toggleFullscreen } from "$stores/isFullscreen";
-	import Tooltip from "$components/Tooltip.svelte";
 	import PocketBase, { type RecordModel } from "pocketbase";
 	import { onMount } from "svelte";
 	import VideoControls from "./VideoControls/VideoControls.svelte";
@@ -122,7 +120,7 @@
 		on:timeupdate={timeupdate}
 		on:ended={ended}
 		on:click={togglePause}
-		autoplay
+		on:loadedmetadata={() => document?.hasFocus() && video?.play?.()}
 	>
 		<source
 			src={`/video/stream/episode/${episode?.id}${
