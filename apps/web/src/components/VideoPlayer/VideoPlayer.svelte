@@ -112,7 +112,7 @@
 		on:timeupdate={timeupdate}
 		on:ended={ended}
 		on:click={togglePause}
-		on:loadedmetadata={() => document?.hasFocus() && $video?.play?.()}
+		on:loadedmetadata={() => $video?.play?.()}
 	>
 		<source
 			src={`/video/stream/episode/${episode?.id}${
