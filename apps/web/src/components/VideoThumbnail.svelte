@@ -23,7 +23,7 @@
 		class={`!w-full flex flex-col ring-1  ${
 			isCurrentVideo
 				? "ring-orange-700/50 hover:ring-orange-700"
-				: "ring-slate-700/0 hover:ring-purple-700"
+				: "ring-slate-700/0 hover:ring-rose-700"
 		} transition-shadow duration-150 ease-in-out`}
 	>
 		<div class="relative rounded-lg overflow-hidden">
@@ -38,7 +38,7 @@
 							? "bg-green-500"
 							: isCurrentVideo
 							? "bg-orange-500"
-							: "bg-purple-500"
+							: "bg-rose-500"
 					}`}
 					style={`width: ${itemPercent}%`}
 				/>

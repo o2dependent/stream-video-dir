@@ -15,9 +15,9 @@
 			on:mouseenter={() => (isHovering = true)}
 			on:mouseleave={() => (isHovering = false)}
 			href={`/episode/${episode?.id}`}
-			class="bg-neutral-700/0 hover:bg-neutral-700/5 opacity-90 hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75 flex"
+			class="bg-neutral-700/0 hover:bg-neutral-700/10 opacity-90 hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75 flex flex-col w-full"
 		>
-			<div class="h-28 aspect-video">
+			<div class="aspect-video overflow-hidden rounded-xl relative">
 				<ThumbnailImage
 					id={episode?.id}
 					name={episode?.name}
@@ -25,12 +25,9 @@
 					parentListeners
 					bind:isHovering
 				/>
-			</div>
-			<div class="flex flex-col h-full w-full">
-				<div class="flex-grow px-2 py-1">
-					<h3 class="text-lg font-semibold">{episode?.name}</h3>
-				</div>
-				<div class="w-full h-1 overflow-hidden rounded-full bg-neutral-700">
+				<div
+					class="absolute bottom-0 left-0 w-full h-1 overflow-hidden bg-neutral-950/75"
+				>
 					<div
 						class="bg-green-500 h-full"
 						style="width: {watched_timestamp?.duration
@@ -39,6 +36,11 @@
 							  100
 							: 0}%"
 					></div>
+				</div>
+			</div>
+			<div class="flex flex-col">
+				<div class="flex-grow px-2 py-1">
+					<h3 class="font-semibold">{episode?.name}</h3>
 				</div>
 			</div>
 		</a>

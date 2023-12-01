@@ -25,12 +25,15 @@
 	});
 </script>
 
-<div class="flex flex-col h-full overflow-y-auto w-full bg-black/50">
+<div
+	class="grid gap-2 h-full overflow-y-auto w-full"
+	style:grid-template-columns="repeat(auto-fill, minmax(350px, 1fr))"
+>
 	{#each episodes ?? [] as episode}
 		<EpisodeItem {episode} />
 	{:else}
 		<div
-			class="p-4 bg-neutral-700/0 hover:bg-neutral-700/5 opacity-90 hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75"
+			class="p-4 bg-neutral-700/0 hover:bg-neutral-700/10 opacity-90 hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75"
 		>
 			<h3 class="text-lg font-semibold">Nothing here!</h3>
 		</div>

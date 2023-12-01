@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { io } from "socket.io-client";
 	import { onMount } from "svelte";
+	import NavProgress from "./NavProgress.svelte";
 	export let hostname: string;
 	export let pathname: string;
 	export let profile: string | undefined;
@@ -54,13 +55,9 @@
 	};
 </script>
 
-<div id="nav-padding" class="h-12 w-full" class:hidden={!showNav} />
-<div
-	class="z-20 top-0 left-0 w-full fixed h-12 overflow-hidden"
-	class:top-full={!showNav}
->
+<div class:hidden={!showNav} class="z-20 w-full h-12">
 	<div
-		class="w-full bg-slate-950 h-12 overflow-hidden flex items-center origin-top duration-300"
+		class="w-full border-b border-neutral-950 h-12 overflow-hidden flex items-center origin-top duration-300"
 	>
 		<div class="container h-full w-full mx-auto">
 			<nav class="mx-auto flex w-full h-full justify-between">
@@ -102,6 +99,7 @@
 			</nav>
 		</div>
 	</div>
+	<NavProgress />
 </div>
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
@@ -120,9 +118,7 @@
 	}}
 	role="dialog"
 >
-	<div
-		class="w-full p-4 rounded border border-slate-500/50 bg-slate-800 max-w-sm flex flex-col gap-2"
-	>
+	<div class="w-full p-4 rounded bg-slate-800 max-w-sm flex flex-col gap-2">
 		<input type="text" bind:value={newDeviceName} />
 		<div>
 			<button
