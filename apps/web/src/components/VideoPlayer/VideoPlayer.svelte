@@ -23,7 +23,8 @@
 
 	$: fullyWatched =
 		watchedTimestamp?.timestamp &&
-		watchedTimestamp?.timestamp === watchedTimestamp?.duration;
+		Math.floor(watchedTimestamp?.timestamp) ===
+			Math.floor(watchedTimestamp?.duration);
 	$: startTime = fullyWatched ? 0 : watchedTimestamp?.timestamp ?? 0;
 
 	$: autoplayNext =
@@ -112,7 +113,7 @@
 		on:timeupdate={timeupdate}
 		on:ended={ended}
 		on:click={togglePause}
-		on:loadedmetadata={() => $video?.play?.()}
+		autoplay
 	>
 		<source
 			src={`/video/stream/episode/${episode?.id}${
