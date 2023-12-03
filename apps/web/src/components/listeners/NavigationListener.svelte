@@ -32,10 +32,13 @@
 		document.addEventListener("astro:after-swap", afterswap);
 		document.addEventListener("astro:page-load", pageload);
 		return () => {
-			document.addEventListener("astro:before-preparation", beforepreparation);
-			document.addEventListener("astro:before-swap", beforeswap);
-			document.addEventListener("astro:after-swap", afterswap);
-			document.addEventListener("astro:page-load", pageload);
+			document.removeEventListener(
+				"astro:before-preparation",
+				beforepreparation,
+			);
+			document.removeEventListener("astro:before-swap", beforeswap);
+			document.removeEventListener("astro:after-swap", afterswap);
+			document.removeEventListener("astro:page-load", pageload);
 		};
 	});
 </script>
