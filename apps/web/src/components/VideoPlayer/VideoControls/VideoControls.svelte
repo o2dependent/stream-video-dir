@@ -25,7 +25,7 @@
 <div
 	aria-label="Video controls"
 	id="controls"
-	class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 absolute bottom-0 left-0 w-full z-40 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 peer-hover:opacity-100 peer-hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
+	class="peer grid grid-cols-1 grid-rows-[1rem_3rem] px-3 fixed bottom-0 left-0 w-full z-40 h-16 bg-gradient-to-t from-black via-black/25 to-black/0 hover:opacity-100 hover:translate-y-0 peer-hover:opacity-100 peer-hover:translate-y-0 opacity-0 transition-all duration-300 cursor-default"
 	class:opacity-100={$paused || isHovered}
 	class:translate-y-full={!($paused || isHovered)}
 >

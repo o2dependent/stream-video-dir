@@ -96,7 +96,7 @@
 </script>
 
 <div
-	class="relative h-full w-full flex flex-col justify-center items-center overflow-hidden"
+	class="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden"
 	class:cursor-none={!($paused || isHovered)}
 >
 	<KeyboardControls {tempShowControls} />
@@ -108,11 +108,11 @@
 		bind:currentTime={$currentTime}
 		bind:volume={$volume}
 		class="object-contain h-screen w-full"
-		on:dblclick={dblclickFullscreen}
-		on:mousemove={mousemove}
-		on:timeupdate={timeupdate}
-		on:ended={ended}
-		on:click={togglePause}
+		on:dblclick|preventDefault={dblclickFullscreen}
+		on:mousemove|preventDefault={mousemove}
+		on:timeupdate|preventDefault={timeupdate}
+		on:ended|preventDefault={ended}
+		on:click|preventDefault={togglePause}
 		autoplay
 	>
 		<source
