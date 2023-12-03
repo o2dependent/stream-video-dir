@@ -104,7 +104,7 @@
 	}}
 >
 	<div
-		class="absolute top-1/2 -translate-y-1/2 left-0 w-full h-1 group-hover:h-1.5 bg-slate-400/50 flex items-center transition-all origin-bottom"
+		class="absolute top-1/2 -translate-y-1/2 left-0 w-full h-1 group-hover:h-1.5 shadow-md bg-slate-400/50 flex items-center transition-all origin-bottom"
 		class:h-1.5={isChanging}
 		class:duration-0={isChanging}
 		role="progressbar"
@@ -113,7 +113,7 @@
 		aria-valuenow={isChanging ? changingCurrentTime : $currentTime}
 	>
 		<div
-			class="h-full bg-red-500 origin-bottom"
+			class="h-full bg-rose-500 origin-bottom"
 			class:duration-0={isChanging}
 			style={`width: ${
 				((isChanging ? changingCurrentTime : $currentTime) / ($duration ?? 1)) *
@@ -122,7 +122,7 @@
 			aria-hidden="true"
 		/>
 		<div
-			class="flex -ml-2 w-0 h-0 group-hover:w-4 group-hover:h-4 rounded-full bg-red-500 transition-all"
+			class="flex -ml-2 w-0 h-0 group-hover:w-4 group-hover:h-4 rounded-full bg-rose-500 transition-all"
 			class:w-4={isChanging}
 			class:h-4={isChanging}
 			class:duration-0={isChanging}
