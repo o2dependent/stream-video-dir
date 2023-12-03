@@ -7,7 +7,7 @@
 
 <Tooltip
 	{containEl}
-	className="aspect-square"
+	className="h-full aspect-square"
 	tip="{$isFullscreen ? 'Exit ' : ''}Fullscreen"
 	pos="top center"
 	shortcut="f"

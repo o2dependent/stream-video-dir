@@ -6,7 +6,7 @@
 </script>
 
 <Tooltip
-	className="h-full"
+	className="h-full aspect-square"
 	pos="top center"
 	{containEl}
 	tip="Autoplay {autoplayNext ? 'enabled' : 'disabled'}"

@@ -6,7 +6,12 @@
 	export let episode: RecordModel;
 </script>
 
-<Tooltip containEl={videoTopContainer} tip="Back" pos="right center">
+<Tooltip
+	className="h-full aspect-square"
+	containEl={videoTopContainer}
+	tip="Back"
+	pos="right center"
+>
 	<a
 		href={`/series/${episode?.series}/${episode?.season}`}
 		class="h-full aspect-square flex items-center justify-center group"
