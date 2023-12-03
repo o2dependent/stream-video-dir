@@ -24,7 +24,7 @@
 		/>
 		<div>
 			<button
-				class="px-2 py-1 rounded bg-red-500 text-white"
+				class="px-2 py-1 rounded bg-rose-500 text-white"
 				type="button"
 				on:click={() => {
 					isModalOpen = false;

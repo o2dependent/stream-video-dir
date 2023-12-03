@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { io } from "socket.io-client";
+	// import { io } from "socket.io-client";
 	import { onMount } from "svelte";
 	import NavProgress from "./NavProgress.svelte";
 	export let hostname: string;
@@ -7,7 +7,7 @@
 	export let profile: string | undefined;
 	export let showNav: boolean = true;
 
-	let socket: ReturnType<typeof io>;
+	// let socket: ReturnType<typeof io>;
 
 	let isModalOpen = false;
 	let isPassToDeviceModalOpen = false;
@@ -18,20 +18,20 @@
 	$: newDeviceName = deviceName;
 
 	let devices: Record<string, any> = {};
-	if (typeof window !== "undefined") {
-		socket = io(`${hostname}:5432`, {
-			withCredentials: true,
-		});
-		socket.connect();
-		socket.emit("join", deviceName);
-		socket.on("joined", (data) => {
-			devices = data.devices;
-		});
-		socket.on("passToDevice", (pathname) => {
-			// navigate to pathname
-			window.location.pathname = pathname;
-		});
-	}
+	// if (typeof window !== "undefined") {
+	// 	socket = io(`${hostname}:5432`, {
+	// 		withCredentials: true,
+	// 	});
+	// 	socket.connect();
+	// 	socket.emit("join", deviceName);
+	// 	socket.on("joined", (data) => {
+	// 		devices = data.devices;
+	// 	});
+	// 	socket.on("passToDevice", (pathname) => {
+	// 		// navigate to pathname
+	// 		window.location.pathname = pathname;
+	// 	});
+	// }
 
 	const openModal = () => {
 		isModalOpen = true;
@@ -40,22 +40,22 @@
 		isPassToDeviceModalOpen = true;
 	};
 	const saveDeviceName = () => {
-		socket.emit("saveDeviceName", {
-			oldDeviceName: deviceName,
-			newDeviceName,
-		});
+		// socket.emit("saveDeviceName", {
+		// 	oldDeviceName: deviceName,
+		// 	newDeviceName,
+		// });
 		deviceName = newDeviceName;
 		localStorage.setItem("deviceName", deviceName);
 	};
 	const passToDevice = (targetDeviceName: string) => {
-		socket.emit("passToDevice", {
-			targetDeviceName,
-			pathname,
-		});
+		// socket.emit("passToDevice", {
+		// 	targetDeviceName,
+		// 	pathname,
+		// });
 	};
 </script>
 
-<div class:hidden={!showNav} class="z-20 w-full h-12">
+<div class:hidden={!showNav} class="z-20 w-full h-12 sticky top-0 bg-black">
 	<div
 		class="w-full border-b border-neutral-950 h-12 overflow-hidden flex items-center origin-top duration-300"
 	>
@@ -122,7 +122,7 @@
 		<input type="text" bind:value={newDeviceName} />
 		<div>
 			<button
-				class="px-2 py-1 rounded bg-red-500 text-white"
+				class="px-2 py-1 rounded bg-rose-500 text-white"
 				type="button"
 				on:click={() => {
 					newDeviceName = "";

@@ -29,8 +29,8 @@ const profile = Astro.locals.profile?.name;
 	</head>
 	<body class="bg-black text-neutral-50 flex flex-col">
 		<NavigationListener client:load />
-		<FullscreenListener {fullscreenPersist} client:only />
-		<WindowScrollYListener />
+		<FullscreenListener {fullscreenPersist} client:load />
+		<WindowScrollYListener client:load />
 		<Nav client:load {showNav} {hostname} {pathname} {profile} />
 		<main class="w-full h-full flex flex-col">
 			<slot />
