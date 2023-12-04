@@ -6,7 +6,7 @@
 </script>
 
 <Tooltip
-	className="h-full aspect-square"
+	className="h-full"
 	pos="top center"
 	{containEl}
 	tip={$muted ? "Unmute" : "Mute"}
