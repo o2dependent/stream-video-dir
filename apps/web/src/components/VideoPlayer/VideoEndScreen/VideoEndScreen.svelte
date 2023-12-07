@@ -4,6 +4,7 @@
 	import { duration, currentTime } from "../video";
 	import VideoThumbnail from "$components/VideoThumbnail.svelte";
 	import { navigate } from "astro/transitions/router";
+	import EpisodeItem from "$components/EpisodeItem.svelte";
 
 	export let autoplayNext: boolean;
 	export let nextEpisode: RecordModel | undefined;
@@ -53,7 +54,7 @@
 	>
 		{#if nextEpisode && nextEpisode?.id}
 			<div
-				class="flex flex-col h-full items-center justify-center w-full -mt-20"
+				class="flex flex-col h-full items-center justify-center w-full -mt-20 max-w-xl"
 			>
 				<div class="flex flex-col gap-2 items-center justify-center">
 					<p
@@ -63,7 +64,7 @@
 					>
 						Up next in <span class="text-white">{autoplayCountdown}</span>
 					</p>
-					<VideoThumbnail episode={nextEpisode} isCurrentVideo={false} />
+					<EpisodeItem episode={nextEpisode} />
 					<div class="w-full flex gap-2">
 						<button
 							on:click={() => {
