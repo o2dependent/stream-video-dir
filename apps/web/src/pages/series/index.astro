@@ -1,22 +1,63 @@
 ---
+import path from "path";
 import Layout from "$layouts/Layout.astro";
 import type { RecordModel } from "pocketbase";
 
 let series: RecordModel[] = [];
 let error: string | null = null;
+const pb = Astro.locals.pb;
 try {
-	series = await Astro.locals.pb.collection("series").getFullList();
+	series = await pb.collection("series").getFullList();
+	const pbTimestampFilters = series
+		?.map(({ id }) => `(episode.season.series = "${id}")`)
+		.join(" || ");
+	for (let i = 0; i < series.length; i++) {
+		if (!series?.[i]) continue;
+		const { id } = series?.[i];
+		const timestampFilter = `episode.season.series = "${id}"`;
+		try {
+			const latestWatchedTimestamp = await pb
+				.collection("watched_timestamps")
+				.getFirstListItem(timestampFilter, {
+					sort: "-updated",
+					expand: "episode",
+				});
+			if (latestWatchedTimestamp) {
+				const seasonId = latestWatchedTimestamp?.expand?.episode?.season;
+				series[i].latestWatchedTimestamp = latestWatchedTimestamp ?? undefined;
+				series[i].latestSeason = seasonId ?? undefined;
+			} else {
+				const seasonFilter = `season.series = "${id}"`;
+				const latestSeason = await pb
+					.collection("seasons")
+					.getFirstListItem(seasonFilter, {
+						sort: "-updated",
+					});
+
+				series[i].latestSeason = latestSeason?.id ?? undefined;
+			}
+		} catch (error) {
+			continue;
+		}
+	}
 } catch (error) {
 	error = "Something went wrong while loading all series.";
 }
 ---
 
 <Layout title="Welcome to Astro.">
+	{
+		error && (
+			<p class="text-neutral-100 bg-red-500 px-4 py-1 text-xl font-bold w-full">
+				{error}
+			</p>
+		)
+	}
 	<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
 		{
-			series?.map(({ id, name }) => (
+			series?.map(({ id, name, latestSeason, latestWatchedTimestamp }) => (
 				<a
-					href={`/series/${id}`}
+					href={path.join(`/series/${id}`, latestSeason ?? "")}
 					class="p-4 border border-gray-200 rounded-md shadow-sm hover:shadow-md"
 				>
 					<h3 class="text-lg font-semibold">{name}</h3>
