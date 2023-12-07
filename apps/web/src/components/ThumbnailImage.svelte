@@ -16,7 +16,7 @@
 </script>
 
 <img
-	class="w-full max-w-md aspect-video object-contain"
+	class="w-full aspect-video object-contain object-center"
 	on:mouseenter={mouseenter}
 	on:mouseleave={mouseleave}
 	src="/thumbnail/{type}/{id}.{isHovering ? 'gif' : 'png'}"

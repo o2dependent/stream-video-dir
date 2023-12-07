@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import PocketBase, { type RecordModel } from "pocketbase";
-	import EpisodeItem from "./EpisodeItem.svelte";
+	import EpisodeListItem from "./EpisodeListItem.svelte";
 
 	export let episodes: RecordModel[] | null;
 	onMount(() => {
@@ -30,7 +30,7 @@
 	style:grid-template-columns="repeat(auto-fill, minmax(350px, 1fr))"
 >
 	{#each episodes ?? [] as episode}
-		<EpisodeItem {episode} />
+		<EpisodeListItem {episode} />
 	{:else}
 		<div
 			class="p-4 bg-neutral-700/0 hover:bg-neutral-700/10 opacity-90 hover:opacity-100 shadow-sm hover:shadow-md transition-all duration-75"
