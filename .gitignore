@@ -1,4 +1,5 @@
 # build output
+.turbo/
 dist/
 pocketbase
 pb_data/
