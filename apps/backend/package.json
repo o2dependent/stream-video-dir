@@ -1,11 +1,17 @@
 {
-  "name": "backend",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+	"name": "backend",
+	"module": "index.ts",
+	"type": "module",
+	"scripts": {
+		"build": "bun build --compile --minify --sourcemap ./index.ts --outfile backend"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"@socketsupply/socket-node": "^0.5.0"
+	}
 }

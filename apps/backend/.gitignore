@@ -1,7 +1,6 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
 # Logs
-
 logs
 _.log
 npm-debug.log_
@@ -20,6 +19,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Runtime data
 
+backend
 pids
 _.pid
 _.seed
